@@ -1,0 +1,6 @@
+{
+  "wsUrl": "wss://your-lifeos-backend.netlify.app/.netlify/functions/rsl-ws",
+  "pollUrl": "https://your-lifeos-backend.netlify.app/.netlify/functions/rsl-poll",
+  "pollIntervalMs": 5000,
+  "notes": "Override via env: RSL_WS_URL, RSL_POLL_URL. Use wss for encrypted WebSocket."
+}

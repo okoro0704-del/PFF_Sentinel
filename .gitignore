@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Environment (do not commit secrets)
+.env
+.env.local
+.env.*.local
+
+# Build / output
+dist/
+build/
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Optional: keep .env.example
+!.env.example

@@ -1,0 +1,119 @@
+{
+  "name": "PFF Sentinel Protocol",
+  "short_name": "Sentinel",
+  "description": "Sentinel Protocol - Desktop Suite with Hardware Bridge, Drivers, and 4-layer biometric authentication",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "orientation": "any",
+  "scope": "/",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "security",
+    "utilities",
+    "productivity"
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/download-portal.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Sentinel Download Portal"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Download Mobile App",
+      "short_name": "Mobile",
+      "description": "Download Sentinel Mobile App",
+      "url": "/download.html#mobile",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Download Desktop Suite",
+      "short_name": "Desktop",
+      "description": "Download Sentinel Desktop Suite (Includes Hardware Drivers)",
+      "url": "/download.html#desktop",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Launch Sentinel",
+      "short_name": "Launch",
+      "description": "Launch Sentinel Authentication",
+      "url": "/index.html",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
+

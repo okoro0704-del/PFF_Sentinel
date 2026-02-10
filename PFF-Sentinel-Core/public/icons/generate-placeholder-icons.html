@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate Placeholder PWA Icons</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: #0f172a;
+      color: #f1f5f9;
+    }
+    h1 { color: #3b82f6; }
+    .icon-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    .icon-item {
+      text-align: center;
+      padding: 1rem;
+      background: #1e293b;
+      border-radius: 8px;
+    }
+    canvas {
+      border: 2px solid #475569;
+      border-radius: 8px;
+      max-width: 100%;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      margin: 0.5rem;
+    }
+    button:hover { background: #2563eb; }
+    .info {
+      background: #1e293b;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      border-left: 4px solid #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛡️ PFF Sentinel - PWA Icon Generator</h1>
+  
+  <div class="info">
+    <p><strong>Instructions:</strong> This tool generates placeholder icons for the PWA. Click "Generate Icons" to create them, then right-click each icon to save it with the correct filename.</p>
+  </div>
+
+  <button onclick="generateIcons()">Generate Placeholder Icons</button>
+  <button onclick="downloadAll()">Download All Icons (ZIP)</button>
+
+  <div class="icon-preview" id="iconPreview"></div>
+
+  <script>
+    const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+    const canvases = {};
+
+    function generateIcons() {
+      const preview = document.getElementById('iconPreview');
+      preview.innerHTML = '';
+
+      sizes.forEach(size => {
+        const container = document.createElement('div');
+        container.className = 'icon-item';
+
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        // Background gradient
+        const gradient = ctx.createLinearGradient(0, 0, size, size);
+        gradient.addColorStop(0, '#3b82f6');
+        gradient.addColorStop(1, '#8b5cf6');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, size, size);
+
+        // Shield shape
+        ctx.fillStyle = '#ffffff';
+        const centerX = size / 2;
+        const centerY = size / 2;
+        const shieldSize = size * 0.6;
+
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY - shieldSize / 2);
+        ctx.lineTo(centerX + shieldSize / 2, centerY - shieldSize / 4);
+        ctx.lineTo(centerX + shieldSize / 2, centerY + shieldSize / 4);
+        ctx.lineTo(centerX, centerY + shieldSize / 2);
+        ctx.lineTo(centerX - shieldSize / 2, centerY + shieldSize / 4);
+        ctx.lineTo(centerX - shieldSize / 2, centerY - shieldSize / 4);
+        ctx.closePath();
+        ctx.fill();
+
+        // Add "S" for Sentinel
+        ctx.fillStyle = '#3b82f6';
+        ctx.font = `bold ${size * 0.4}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('S', centerX, centerY);
+
+        canvases[size] = canvas;
+
+        const label = document.createElement('p');
+        label.textContent = `${size}x${size}`;
+        label.style.marginTop = '0.5rem';
+        label.style.fontSize = '0.875rem';
+
+        const downloadBtn = document.createElement('button');
+        downloadBtn.textContent = 'Download';
+        downloadBtn.style.fontSize = '0.75rem';
+        downloadBtn.style.padding = '0.5rem 1rem';
+        downloadBtn.onclick = () => downloadIcon(size);
+
+        container.appendChild(canvas);
+        container.appendChild(label);
+        container.appendChild(downloadBtn);
+        preview.appendChild(container);
+      });
+    }
+
+    function downloadIcon(size) {
+      const canvas = canvases[size];
+      const link = document.createElement('a');
+      link.download = `icon-${size}x${size}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function downloadAll() {
+      if (Object.keys(canvases).length === 0) {
+        alert('Please generate icons first!');
+        return;
+      }
+
+      // Download each icon with a small delay
+      sizes.forEach((size, index) => {
+        setTimeout(() => downloadIcon(size), index * 500);
+      });
+    }
+
+    // Auto-generate on load
+    window.addEventListener('load', generateIcons);
+  </script>
+</body>
+</html>
+

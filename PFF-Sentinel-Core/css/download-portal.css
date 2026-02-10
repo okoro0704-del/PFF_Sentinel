@@ -1,0 +1,508 @@
+/**
+ * PFF Sentinel — Download Portal Styles
+ * Responsive design with high-contrast buttons and modern UI
+ */
+
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --accent-mobile: #3b82f6;
+  --accent-mobile-hover: #2563eb;
+  --accent-desktop: #8b5cf6;
+  --accent-desktop-hover: #7c3aed;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --border-color: #475569;
+  --shadow: rgba(0, 0, 0, 0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, #1a2332 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+}
+
+/* Header */
+.portal-header {
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--border-color);
+  padding: 2rem 1rem;
+  box-shadow: 0 4px 6px var(--shadow);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.sentinel-logo {
+  font-size: 3rem;
+  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+}
+
+.portal-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tagline {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+/* Main Content */
+.portal-main {
+  flex: 1;
+  padding: 3rem 1rem;
+}
+
+.portal-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Section Styles */
+.section-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.section-description {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  margin-bottom: 2.5rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Download Section */
+.download-section {
+  margin-bottom: 4rem;
+}
+
+.download-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.download-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px var(--shadow);
+}
+
+.download-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px var(--shadow);
+}
+
+.mobile-card {
+  border-color: var(--accent-mobile);
+}
+
+.desktop-card {
+  border-color: var(--accent-desktop);
+}
+
+.card-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+}
+
+.card-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.card-description {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.7;
+}
+
+/* Download Buttons */
+.btn-download {
+  width: 100%;
+  padding: 1.25rem 2rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.btn-download:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px var(--shadow);
+}
+
+.btn-download:active {
+  transform: scale(0.98);
+}
+
+.btn-mobile {
+  background: linear-gradient(135deg, var(--accent-mobile), #2563eb);
+  color: white;
+}
+
+.btn-mobile:hover {
+  background: linear-gradient(135deg, var(--accent-mobile-hover), #1d4ed8);
+}
+
+.btn-desktop {
+  background: linear-gradient(135deg, var(--accent-desktop), #7c3aed);
+  color: white;
+}
+
+.btn-desktop:hover {
+  background: linear-gradient(135deg, var(--accent-desktop-hover), #6d28d9);
+}
+
+.btn-icon {
+  font-size: 1.5rem;
+}
+
+.platform-badges {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.badge {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  padding: 0.375rem 0.875rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+}
+
+/* Hardware Status Section */
+.hardware-section {
+  margin-bottom: 4rem;
+}
+
+.status-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.status-icon {
+  font-size: 3rem;
+  flex-shrink: 0;
+}
+
+.status-content {
+  flex: 1;
+}
+
+.status-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.status-message {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+/* Status States */
+.status-card.checking {
+  border-color: var(--accent-mobile);
+}
+
+.status-card.online {
+  border-color: var(--success);
+}
+
+.status-card.offline {
+  border-color: var(--danger);
+}
+
+/* Warning Card */
+.warning-card {
+  background: rgba(239, 68, 68, 0.1);
+  border: 2px solid var(--danger);
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.warning-icon {
+  font-size: 3rem;
+  flex-shrink: 0;
+}
+
+.warning-content {
+  flex: 1;
+}
+
+.warning-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--danger);
+}
+
+.warning-message {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+}
+
+.btn-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.75rem;
+  background: var(--danger);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-warning:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
+/* QR Code Section */
+.qr-section {
+  margin-bottom: 4rem;
+}
+
+.qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.qr-code {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px var(--shadow);
+  min-height: 280px;
+  min-width: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-label {
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+/* PWA Section */
+.pwa-section {
+  margin-bottom: 4rem;
+}
+
+.pwa-card {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+  border: 2px solid var(--accent-mobile);
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.pwa-icon {
+  font-size: 3rem;
+  flex-shrink: 0;
+}
+
+.pwa-content {
+  flex: 1;
+}
+
+.pwa-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.pwa-message {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+}
+
+.btn-pwa {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.75rem;
+  background: var(--accent-mobile);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-pwa:hover {
+  background: var(--accent-mobile-hover);
+  transform: translateY(-2px);
+}
+
+/* Footer */
+.portal-footer {
+  background: var(--bg-secondary);
+  border-top: 2px solid var(--border-color);
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.footer-links {
+  margin-top: 0.5rem;
+}
+
+.footer-links a {
+  color: var(--accent-mobile);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: var(--accent-mobile-hover);
+}
+
+.separator {
+  margin: 0 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Utility Classes */
+.hidden {
+  display: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .portal-header h1 {
+    font-size: 2rem;
+  }
+
+  .sentinel-logo {
+    font-size: 2.5rem;
+  }
+
+  .tagline {
+    font-size: 1rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .section-description {
+    font-size: 1rem;
+  }
+
+  .download-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .download-card {
+    padding: 2rem;
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+  }
+
+  .status-card,
+  .warning-card,
+  .pwa-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .qr-code {
+    min-height: 240px;
+    min-width: 240px;
+    padding: 1.5rem;
+  }
+
+  /* Hide QR and hardware sections on mobile */
+  .qr-section,
+  .hardware-section {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) {
+  /* Show desktop-only sections */
+  .qr-section,
+  .hardware-section {
+    display: block;
+  }
+}
+

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LifeOS Admin — Lock Command</title>
+  <style>
+    body { font-family: system-ui; background: #0f172a; color: #e2e8f0; margin: 2rem; }
+    h1 { font-size: 1.5rem; }
+    .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; background: #dc2626; color: #fff; }
+    .btn:hover { background: #b91c1c; }
+    p { margin: 1rem 0; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <h1>LifeOS Admin</h1>
+  <p>Send <strong>Lock_Command</strong> to the PFF Sentinel. The device will immediately enter Sovereign Lock (4-layer overlay, input disabled) until a verified local handshake is performed.</p>
+  <button type="button" class="btn" id="sendLock">Send Lock_Command</button>
+  <p id="status"></p>
+  <script type="module">
+    import { sendLockCommand } from '/js/lock-state.js';
+    document.getElementById('sendLock').addEventListener('click', () => {
+      sendLockCommand();
+      document.getElementById('status').textContent = 'Lock_Command sent. Sentinel tabs will hard-lock.';
+    });
+  </script>
+</body>
+</html>

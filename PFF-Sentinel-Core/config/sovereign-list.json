@@ -1,0 +1,19 @@
+{
+  "$schema": "Sovereign List — Protected Apps. Process names are case-insensitive.",
+  "protectedApps": [
+    {
+      "processName": "chrome.exe",
+      "description": "Chrome when on LifeOS URL",
+      "optionalUrl": "https://lifeos.example.com"
+    },
+    {
+      "processName": "banking_app.exe",
+      "description": "Banking application"
+    },
+    {
+      "processName": "cursor.exe",
+      "description": "Cursor IDE"
+    }
+  ],
+  "notes": "optionalUrl is for future use (e.g. browser tab URL check). Process name is matched against running process image name."
+}

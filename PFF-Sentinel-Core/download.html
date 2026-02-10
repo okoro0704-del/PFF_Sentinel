@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="Download PFF Sentinel - Mobile App and Desktop Suite with Hardware Drivers" />
+  <title>Sentinel Distribution Portal</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="/css/download-portal.css" />
+</head>
+<body>
+  <!-- Header Section -->
+  <header class="portal-header">
+    <div class="header-content">
+      <div class="logo-section">
+        <div class="sentinel-logo">🛡️</div>
+        <h1>PFF Sentinel</h1>
+      </div>
+      <p class="tagline">Distribution & Hardware Portal</p>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="portal-main">
+    <div class="portal-container">
+      
+      <!-- Download Section -->
+      <section class="download-section">
+        <h2 class="section-title">Download Sentinel</h2>
+        <p class="section-description">
+          Choose your platform to get started with PFF Sentinel's 4-layer authentication system.
+        </p>
+
+        <div class="download-grid">
+          <!-- Mobile Download Button -->
+          <div class="download-card mobile-card">
+            <div class="card-icon">📱</div>
+            <h3 class="card-title">Sentinel Mobile</h3>
+            <p class="card-description">
+              Full biometric authentication on your mobile device. Face, voice, fingerprint, and device binding.
+            </p>
+            <button type="button" class="btn-download btn-mobile" id="btnDownloadMobile">
+              <span class="btn-icon">⬇</span>
+              <span class="btn-text">Download Mobile App</span>
+            </button>
+            <div class="platform-badges">
+              <span class="badge">Android</span>
+              <span class="badge">iOS</span>
+            </div>
+          </div>
+
+          <!-- Desktop Hardware Bridge Button -->
+          <div class="download-card desktop-card">
+            <div class="card-icon">💻</div>
+            <h3 class="card-title">Desktop Hardware Bridge</h3>
+            <p class="card-description">
+              Complete desktop suite with ZKTeco hardware bridge, USB drivers, and 3-step setup guide.
+            </p>
+            <button type="button" class="btn-download btn-desktop" id="btnDownloadDesktop">
+              <span class="btn-icon">⬇</span>
+              <span class="btn-text">Download Sentinel Desktop Suite (Includes Hardware Drivers)</span>
+            </button>
+            <div class="platform-badges">
+              <span class="badge">Windows</span>
+              <span class="badge">macOS</span>
+              <span class="badge">Linux</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hardware Status Section (Desktop Only) -->
+      <section class="hardware-section" id="hardwareSection">
+        <h2 class="section-title">Hardware Status</h2>
+        
+        <div class="status-card" id="hardwareStatus">
+          <div class="status-icon" id="statusIcon">🔍</div>
+          <div class="status-content">
+            <h3 class="status-title" id="statusTitle">Checking Hardware...</h3>
+            <p class="status-message" id="statusMessage">Detecting ZKTeco fingerprint scanner...</p>
+          </div>
+        </div>
+
+        <!-- Hardware Offline Warning -->
+        <div class="warning-card hidden" id="hardwareWarning">
+          <div class="warning-icon">⚠️</div>
+          <div class="warning-content">
+            <h3 class="warning-title">Hardware Offline</h3>
+            <p class="warning-message">
+              ZKTeco fingerprint scanner not detected. Please ensure the device is connected and drivers are installed.
+            </p>
+            <a href="#" class="btn-warning" id="btnDriverInstaller">
+              <span class="btn-icon">📦</span>
+              <span class="btn-text">Download ZKTeco Drivers</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- QR Code Section (Desktop Only) -->
+      <section class="qr-section" id="qrSection">
+        <h2 class="section-title">Quick Mobile Download</h2>
+        <p class="section-description">
+          Scan this QR code with your phone to instantly download the Sentinel Mobile App.
+        </p>
+        
+        <div class="qr-container">
+          <div class="qr-code" id="qrCode">
+            <!-- QR code will be generated here -->
+          </div>
+          <p class="qr-label">Scan to Download</p>
+        </div>
+      </section>
+
+      <!-- PWA Install Prompt -->
+      <section class="pwa-section hidden" id="pwaSection">
+        <div class="pwa-card">
+          <div class="pwa-icon">📲</div>
+          <div class="pwa-content">
+            <h3 class="pwa-title">Install Portal</h3>
+            <p class="pwa-message">
+              Add this download portal to your home screen for quick access to Sentinel updates.
+            </p>
+            <button type="button" class="btn-pwa" id="btnInstallPwa">
+              <span class="btn-icon">➕</span>
+              <span class="btn-text">Install Portal</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="portal-footer">
+    <p>&copy; 2026 PFF Sentinel. Sovereign Handshake v2.0</p>
+    <p class="footer-links">
+      <a href="/index.html">Launch Sentinel</a>
+      <span class="separator">•</span>
+      <a href="/admin.html">Admin Panel</a>
+    </p>
+  </footer>
+
+  <script type="module" src="/js/download-portal.js"></script>
+
+  <!-- Register enhanced service worker for PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw-enhanced.js').then((registration) => {
+        console.log('Service Worker registered with scope:', registration.scope);
+      }).catch((error) => {
+        console.error('Service Worker registration failed:', error);
+      });
+    }
+  </script>
+</body>
+</html>
+

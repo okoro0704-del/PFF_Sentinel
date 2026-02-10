@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Supabase Connection</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    h1 {
+      color: #333;
+      margin-top: 0;
+    }
+    .status {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      font-weight: 600;
+    }
+    .status.pending {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      color: #92400e;
+    }
+    .status.success {
+      background: #d1fae5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+    }
+    .status.error {
+      background: #fee2e2;
+      border-left: 4px solid #ef4444;
+      color: #991b1b;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    button:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    button:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .details {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .step {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f1f5f9;
+      border-radius: 8px;
+    }
+    .step h3 {
+      margin-top: 0;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔌 Supabase Connection Test</h1>
+    <p>This page will test your Supabase configuration and verify the database connection.</p>
+
+    <div class="step">
+      <h3>Step 1: Check Environment Variables</h3>
+      <div id="envStatus" class="status pending">⏳ Checking...</div>
+      <div id="envDetails" class="details" style="display:none;"></div>
+    </div>
+
+    <div class="step">
+      <h3>Step 2: Test Database Connection</h3>
+      <button id="testBtn" onclick="testConnection()">Test Connection</button>
+      <div id="connectionStatus" class="status pending" style="display:none;">⏳ Testing...</div>
+      <div id="connectionDetails" class="details" style="display:none;"></div>
+    </div>
+
+    <div class="step">
+      <h3>Step 3: Verify Profiles Table</h3>
+      <button id="verifyBtn" onclick="verifyTable()" disabled>Verify Table</button>
+      <div id="tableStatus" class="status pending" style="display:none;">⏳ Verifying...</div>
+      <div id="tableDetails" class="details" style="display:none;"></div>
+    </div>
+
+    <div class="step">
+      <h3>Step 4: Test Insert Operation</h3>
+      <button id="insertBtn" onclick="testInsert()" disabled>Test Insert</button>
+      <div id="insertStatus" class="status pending" style="display:none;">⏳ Testing...</div>
+      <div id="insertDetails" class="details" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase, upsertProfile, getProfile } from './js/supabase-client.js';
+
+    // Check environment variables
+    window.addEventListener('load', () => {
+      const envStatus = document.getElementById('envStatus');
+      const envDetails = document.getElementById('envDetails');
+      
+      const url = import.meta.env.VITE_SUPABASE_URL;
+      const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      let details = '';
+      details += `VITE_SUPABASE_URL: ${url || '❌ NOT SET'}\n`;
+      details += `VITE_SUPABASE_ANON_KEY: ${key ? '✅ SET (' + key.substring(0, 20) + '...)' : '❌ NOT SET'}\n`;
+      
+      envDetails.textContent = details;
+      envDetails.style.display = 'block';
+      
+      if (url && key && url !== 'https://your-project.supabase.co' && key !== 'your-anon-key') {
+        envStatus.className = 'status success';
+        envStatus.textContent = '✅ Environment variables configured correctly';
+        document.getElementById('testBtn').disabled = false;
+      } else {
+        envStatus.className = 'status error';
+        envStatus.textContent = '❌ Environment variables not configured. Please update .env file.';
+      }
+    });
+
+    // Test connection
+    window.testConnection = async () => {
+      const status = document.getElementById('connectionStatus');
+      const details = document.getElementById('connectionDetails');
+      status.style.display = 'block';
+      details.style.display = 'block';
+      
+      try {
+        status.className = 'status pending';
+        status.textContent = '⏳ Testing connection...';
+        
+        const { data, error } = await supabase.from('profiles').select('count');
+        
+        if (error) throw error;
+        
+        status.className = 'status success';
+        status.textContent = '✅ Connection successful!';
+        details.textContent = `Connected to Supabase successfully.\nProfiles table exists and is accessible.`;
+        
+        document.getElementById('verifyBtn').disabled = false;
+      } catch (err) {
+        status.className = 'status error';
+        status.textContent = '❌ Connection failed';
+        details.textContent = `Error: ${err.message}\n\nPossible causes:\n- Incorrect Supabase URL or API key\n- Profiles table not created\n- Network connectivity issues`;
+      }
+    };
+
+    // Verify table structure
+    window.verifyTable = async () => {
+      const status = document.getElementById('tableStatus');
+      const details = document.getElementById('tableDetails');
+      status.style.display = 'block';
+      details.style.display = 'block';
+      
+      try {
+        status.className = 'status pending';
+        status.textContent = '⏳ Verifying table structure...';
+        
+        // Try to select with all columns
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .limit(1);
+        
+        if (error) throw error;
+        
+        status.className = 'status success';
+        status.textContent = '✅ Table structure verified!';
+        details.textContent = `Profiles table has correct schema.\nReady for data operations.`;
+        
+        document.getElementById('insertBtn').disabled = false;
+      } catch (err) {
+        status.className = 'status error';
+        status.textContent = '❌ Table verification failed';
+        details.textContent = `Error: ${err.message}\n\nPlease run the SQL schema from DEPLOYMENT_GUIDE.md`;
+      }
+    };
+
+    // Test insert
+    window.testInsert = async () => {
+      const status = document.getElementById('insertStatus');
+      const details = document.getElementById('insertDetails');
+      status.style.display = 'block';
+      details.style.display = 'block';
+      
+      try {
+        status.className = 'status pending';
+        status.textContent = '⏳ Testing insert operation...';
+        
+        const testDeviceId = 'test-device-' + Date.now();
+        
+        await upsertProfile(testDeviceId, {
+          device_uuid: testDeviceId,
+          gps_latitude: 37.7749,
+          gps_longitude: -122.4194,
+          gps_accuracy: 10
+        });
+        
+        const profile = await getProfile(testDeviceId);
+        
+        status.className = 'status success';
+        status.textContent = '✅ Insert/Update test successful!';
+        details.textContent = `Test profile created:\n${JSON.stringify(profile, null, 2)}`;
+      } catch (err) {
+        status.className = 'status error';
+        status.textContent = '❌ Insert test failed';
+        details.textContent = `Error: ${err.message}`;
+      }
+    };
+  </script>
+</body>
+</html>
+

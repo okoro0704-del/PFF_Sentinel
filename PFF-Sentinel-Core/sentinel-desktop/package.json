@@ -1,0 +1,15 @@
+{
+  "name": "pff-sentinel-desktop",
+  "version": "2.0.0",
+  "description": "Mandatory Sentinel Overlay — always-on-top fullscreen, Watchdog integration",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "start:dev": "cross-env SENTINEL_URL=http://localhost:5173 electron .",
+    "watchdog": "node watchdog.js"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "electron": "^28.0.0"
+  }
+}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PFF Sovereign Handshake v2.0 — Four-Pillar Anchor</title>
+  <link rel="stylesheet" href="/css/sovereign-handshake.css" />
+  <style>
+    /* Protocol Hardware Status Bar */
+    .protocol-status-bar {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 12px;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(30, 41, 59, 0.8);
+      border-radius: 8px;
+      font-size: 0.875rem;
+      border: 1px solid rgba(100, 116, 139, 0.3);
+    }
+    .status-pill.locked {
+      border-color: rgba(34, 197, 94, 0.6);
+      background: rgba(34, 197, 94, 0.1);
+    }
+    .status-pill.recognized {
+      border-color: rgba(59, 130, 246, 0.6);
+      background: rgba(59, 130, 246, 0.1);
+    }
+    .status-pill.pending {
+      border-color: rgba(251, 191, 36, 0.6);
+      background: rgba(251, 191, 36, 0.1);
+    }
+    .status-pill.failed {
+      border-color: rgba(239, 68, 68, 0.6);
+      background: rgba(239, 68, 68, 0.1);
+    }
+    .status-icon {
+      font-size: 1.25rem;
+    }
+    .status-label {
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .status-value {
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+    .capture-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="vlt-container" id="vltContainer" aria-live="assertive">
+    <div class="vlt-alert" id="vltAlert">SECURITY BREACH: Sentinel process was terminated. Relaunched by Watchdog.</div>
+    <ul class="vlt-log" id="vltLog" aria-label="VLT log"></ul>
+    <div class="vlt-breach-section" id="vltBreachSection">
+      <div class="vlt-breach-title">Breach_Attempts</div>
+      <ul class="vlt-breach-list" id="vltBreachList" aria-label="Breach attempts log"></ul>
+    </div>
+  </div>
+  <div class="fabric-layer" id="fabricLayer" aria-hidden="true">
+    <div class="fabric-mesh"></div>
+  </div>
+
+  <div class="scan-overlay">
+    <div class="panel">
+      <h1>PFF Sovereign Handshake v2.0</h1>
+      <p class="subtitle">Four-Pillar Anchor Protocol — GPS · Device · Face · Fingerprint</p>
+
+      <!-- Protocol Hardware Status Bar -->
+      <div class="protocol-status-bar" id="protocolStatusBar">
+        <div class="status-pill pending" id="gpsStatusPill">
+          <span class="status-icon">📍</span>
+          <span class="status-label">GPS:</span>
+          <span class="status-value" id="gpsStatusValue">Pending</span>
+        </div>
+        <div class="status-pill pending" id="deviceStatusPill">
+          <span class="status-icon">💻</span>
+          <span class="status-label">Device:</span>
+          <span class="status-value" id="deviceStatusValue">Pending</span>
+        </div>
+        <div class="status-pill pending" id="faceStatusPill">
+          <span class="status-icon">👤</span>
+          <span class="status-label">Face:</span>
+          <span class="status-value" id="faceStatusValue">Pending</span>
+        </div>
+        <div class="status-pill pending" id="fingerStatusPill">
+          <span class="status-icon">👆</span>
+          <span class="status-label">Finger:</span>
+          <span class="status-value" id="fingerStatusValue">Pending</span>
+        </div>
+      </div>
+
+      <div class="capture-grid">
+        <div class="face-area capture-cell active" id="faceArea">
+          <div class="label">Face (3D + Liveness)</div>
+          <video id="faceVideo" autoplay playsinline muted></video>
+          <canvas id="faceCanvas" aria-hidden="true" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;"></canvas>
+          <div class="status" id="faceStatus">Ready — start scan</div>
+        </div>
+
+        <div class="capture-cell finger-area" id="fingerCell">
+          <div class="label">Finger (Ridge + Pulse)</div>
+          <div class="icon" aria-hidden="true">👆</div>
+          <div class="status" id="fingerStatus">Waiting</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="btnStart">Start Scan</button>
+        <button type="button" class="btn btn-secondary" id="btnVerify">Verify Cohesion</button>
+        <button type="button" class="btn btn-secondary" id="btnEnroll">Enroll Template</button>
+        <button type="button" class="btn btn-secondary" id="btnBind">Bind This Device</button>
+        <button type="button" class="btn btn-secondary" id="btnConnectWallet">Connect Wallet</button>
+      </div>
+
+      <div class="result" id="result"></div>
+      <div class="device-info" id="deviceInfo"></div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/app-supabase.js"></script>
+</body>
+</html>
+

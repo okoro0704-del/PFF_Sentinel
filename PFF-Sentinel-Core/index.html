@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PFF Sovereign Handshake v2.0</title>
+  <link rel="stylesheet" href="/css/sovereign-handshake.css" />
+</head>
+<body>
+  <div class="vlt-container" id="vltContainer" aria-live="assertive">
+    <div class="vlt-alert" id="vltAlert">SECURITY BREACH: Sentinel process was terminated. Relaunched by Watchdog.</div>
+    <ul class="vlt-log" id="vltLog" aria-label="VLT log"></ul>
+    <div class="vlt-breach-section" id="vltBreachSection">
+      <div class="vlt-breach-title">Breach_Attempts</div>
+      <ul class="vlt-breach-list" id="vltBreachList" aria-label="Breach attempts log"></ul>
+    </div>
+  </div>
+  <div class="fabric-layer" id="fabricLayer" aria-hidden="true">
+    <div class="fabric-mesh"></div>
+  </div>
+
+  <div class="scan-overlay">
+    <div class="panel">
+      <h1>PFF Sovereign Handshake v2.0</h1>
+      <p class="subtitle">Simultaneous 4-layer authentication — Face · Finger · Voice · Device</p>
+
+      <div class="capture-grid">
+        <div class="face-area capture-cell active" id="faceArea">
+          <div class="label">Face (3D + Liveness)</div>
+          <video id="faceVideo" autoplay playsinline muted></video>
+          <canvas id="faceCanvas" aria-hidden="true" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;"></canvas>
+          <div class="status" id="faceStatus">Ready — start scan</div>
+        </div>
+
+        <div class="capture-cell finger-area" id="fingerCell">
+          <div class="label">Finger (Ridge + Pulse)</div>
+          <div class="icon" aria-hidden="true">👆</div>
+          <div class="status" id="fingerStatus">Waiting</div>
+        </div>
+
+        <div class="capture-cell voice-area" id="voiceCell">
+          <div class="label">Voice (Spectral)</div>
+          <div class="icon" aria-hidden="true">🎤</div>
+          <div class="status" id="voiceStatus">Waiting</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="btnStart">Start Scan</button>
+        <button type="button" class="btn btn-secondary" id="btnVerify">Verify Cohesion</button>
+        <button type="button" class="btn btn-secondary" id="btnEnroll">Enroll Template</button>
+        <button type="button" class="btn btn-secondary" id="btnBind">Bind This Device</button>
+      </div>
+
+      <div class="result" id="result"></div>
+      <div class="device-info" id="deviceInfo"></div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supabase Connection Test</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #e2e8f0;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 16px;
+      padding: 40px;
+    }
+    h1 {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 30px;
+    }
+    .test-result {
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-family: monospace;
+    }
+    .success {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid #22c55e;
+      color: #22c55e;
+    }
+    .error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid #ef4444;
+      color: #ef4444;
+    }
+    .info {
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid #3b82f6;
+      color: #3b82f6;
+    }
+    button {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    }
+    .loading {
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔗 Supabase Connection Test</h1>
+    
+    <div id="results">
+      <div class="test-result info">
+        <strong>Status:</strong> <span id="status">Ready to test...</span>
+      </div>
+    </div>
+
+    <button onclick="testConnection()">Test Connection</button>
+
+    <div style="margin-top: 40px; padding: 20px; background: rgba(15, 23, 42, 0.6); border-radius: 8px;">
+      <h3 style="color: #94a3b8; margin-top: 0;">What this test does:</h3>
+      <ol style="color: #cbd5e1; line-height: 1.8;">
+        <li>Checks if .env file is configured</li>
+        <li>Verifies Supabase URL and API key are set</li>
+        <li>Tests connection to your Supabase database</li>
+        <li>Lists existing tables (if any)</li>
+      </ol>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase } from './js/supabase-client.js';
+
+    window.testConnection = async function() {
+      const statusEl = document.getElementById('status');
+      const resultsEl = document.getElementById('results');
+      
+      statusEl.textContent = 'Testing...';
+      statusEl.className = 'loading';
+      
+      let html = '';
+
+      // Test 1: Check environment variables
+      html += '<div class="test-result info"><strong>Test 1:</strong> Checking environment variables...</div>';
+      
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || supabaseUrl.includes('your-project')) {
+        html += '<div class="test-result error">❌ VITE_SUPABASE_URL not configured in .env file</div>';
+        resultsEl.innerHTML = html;
+        return;
+      }
+      
+      if (!supabaseKey || supabaseKey.includes('your-anon-key')) {
+        html += '<div class="test-result error">❌ VITE_SUPABASE_ANON_KEY not configured in .env file</div>';
+        resultsEl.innerHTML = html;
+        return;
+      }
+      
+      html += `<div class="test-result success">✅ Environment variables configured<br>URL: ${supabaseUrl}</div>`;
+
+      // Test 2: Test connection
+      html += '<div class="test-result info"><strong>Test 2:</strong> Testing database connection...</div>';
+      
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('count')
+          .limit(1);
+        
+        if (error) {
+          if (error.code === '42P01') {
+            html += '<div class="test-result info">⚠️ Connection successful, but "profiles" table does not exist yet.<br>This is normal! You need to run the database schema next.</div>';
+          } else {
+            html += `<div class="test-result error">❌ Database error: ${error.message}</div>`;
+          }
+        } else {
+          html += '<div class="test-result success">✅ Connection successful! Database is ready.</div>';
+        }
+      } catch (err) {
+        html += `<div class="test-result error">❌ Connection failed: ${err.message}</div>`;
+      }
+
+      // Test 3: List tables
+      html += '<div class="test-result info"><strong>Test 3:</strong> Checking for existing tables...</div>';
+      
+      try {
+        const { data: tables, error } = await supabase.rpc('get_tables');
+        
+        if (error) {
+          html += '<div class="test-result info">ℹ️ Cannot list tables (this is normal for new projects)</div>';
+        } else if (tables && tables.length > 0) {
+          html += `<div class="test-result success">✅ Found ${tables.length} table(s): ${tables.join(', ')}</div>`;
+        } else {
+          html += '<div class="test-result info">ℹ️ No tables found. Database is empty.</div>';
+        }
+      } catch (err) {
+        html += '<div class="test-result info">ℹ️ Cannot list tables (this is normal for new projects)</div>';
+      }
+
+      // Final status
+      html += '<div class="test-result success"><strong>✅ Connection test complete!</strong><br><br>Next step: Run the database schema in Supabase SQL Editor to create tables.</div>';
+      
+      resultsEl.innerHTML = html;
+    };
+  </script>
+</body>
+</html>
+

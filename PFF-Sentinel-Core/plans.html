@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subscription Plans — PFF Protocol</title>
+  <link rel="stylesheet" href="/css/sovereign-handshake.css" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #e2e8f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .plans-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header p {
+      color: #94a3b8;
+      font-size: 1.1rem;
+    }
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+    .plan-card {
+      background: rgba(30, 41, 59, 0.8);
+      border: 2px solid rgba(59, 130, 246, 0.3);
+      border-radius: 16px;
+      padding: 32px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .plan-card:hover {
+      border-color: rgba(59, 130, 246, 0.8);
+      transform: translateY(-8px);
+      box-shadow: 0 12px 32px rgba(59, 130, 246, 0.3);
+    }
+    .plan-card.featured {
+      border-color: rgba(139, 92, 246, 0.6);
+      background: rgba(139, 92, 246, 0.05);
+    }
+    .plan-card.featured:hover {
+      border-color: rgba(139, 92, 246, 1);
+      box-shadow: 0 12px 32px rgba(139, 92, 246, 0.4);
+    }
+    .plan-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .plan-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #3b82f6;
+    }
+    .plan-card.featured .plan-name {
+      color: #8b5cf6;
+    }
+    .plan-price {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #e2e8f0;
+    }
+    .plan-price span {
+      font-size: 1.25rem;
+      color: #94a3b8;
+    }
+    .plan-commission {
+      font-size: 1rem;
+      color: #22c55e;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin: 24px 0;
+    }
+    .plan-features li {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+    }
+    .plan-features li:before {
+      content: "✓";
+      color: #22c55e;
+      font-weight: 700;
+      margin-right: 12px;
+      font-size: 1.25rem;
+    }
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.125rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 24px;
+    }
+    .btn-select {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+    }
+    .btn-select:hover {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    }
+    .btn-select.featured {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    }
+    .btn-select.featured:hover {
+      background: linear-gradient(135deg, #7c3aed, #6d28d9);
+      box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+    }
+    .btn-select:disabled {
+      background: #475569;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .current-plan-badge {
+      background: #22c55e;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      display: inline-block;
+      margin-top: 12px;
+    }
+    .wallet-info {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 12px;
+    }
+    .wallet-info p {
+      color: #94a3b8;
+      margin: 8px 0;
+    }
+    .wallet-info .address {
+      color: #3b82f6;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="plans-container">
+    <div class="header">
+      <h1>💎 Choose Your Plan</h1>
+      <p>Select a subscription tier and start earning commissions</p>
+    </div>
+
+    <div class="wallet-info" id="walletInfo">
+      <p>Connect your wallet to select a plan</p>
+      <button class="btn btn-select" id="btnConnectWallet" style="max-width: 300px; margin: 16px auto 0;">Connect Wallet</button>
+    </div>
+
+    <div class="plans-grid">
+      <!-- Basic Plan -->
+      <div class="plan-card" data-tier="basic" data-amount="100">
+        <div class="plan-name">Basic</div>
+        <div class="plan-price">$100<span>/month</span></div>
+        <div class="plan-commission">Earn $10 commission</div>
+        <ul class="plan-features">
+          <li>Four-Pillar Verification</li>
+          <li>Basic Analytics Dashboard</li>
+          <li>Email Support</li>
+          <li>Monthly Payouts</li>
+        </ul>
+        <button class="btn btn-select" data-tier="basic">Select Basic</button>
+      </div>
+
+      <!-- Standard Plan -->
+      <div class="plan-card" data-tier="standard" data-amount="200">
+        <div class="plan-name">Standard</div>
+        <div class="plan-price">$200<span>/month</span></div>
+        <div class="plan-commission">Earn $20 commission</div>
+        <ul class="plan-features">
+          <li>Everything in Basic</li>
+          <li>Advanced Analytics</li>
+          <li>Priority Support</li>
+          <li>Weekly Payouts</li>
+          <li>API Access</li>
+        </ul>
+        <button class="btn btn-select" data-tier="standard">Select Standard</button>
+      </div>
+
+      <!-- Premium Plan (Featured) -->
+      <div class="plan-card featured" data-tier="premium" data-amount="500">
+        <div class="plan-badge">Popular</div>
+        <div class="plan-name">Premium</div>
+        <div class="plan-price">$500<span>/month</span></div>
+        <div class="plan-commission">Earn $30 commission</div>
+        <ul class="plan-features">
+          <li>Everything in Standard</li>
+          <li>Real-time Analytics</li>
+          <li>24/7 Priority Support</li>
+          <li>Daily Payouts</li>
+          <li>Custom Branding</li>
+          <li>Dedicated Account Manager</li>
+        </ul>
+        <button class="btn btn-select featured" data-tier="premium">Select Premium</button>
+      </div>
+
+      <!-- Elite Plan -->
+      <div class="plan-card" data-tier="elite" data-amount="1000">
+        <div class="plan-name">Elite</div>
+        <div class="plan-price">$1000<span>/month</span></div>
+        <div class="plan-commission">Earn $30 commission</div>
+        <ul class="plan-features">
+          <li>Everything in Premium</li>
+          <li>White-label Solution</li>
+          <li>Custom Integration</li>
+          <li>Instant Payouts</li>
+          <li>Revenue Sharing Program</li>
+          <li>Enterprise SLA</li>
+          <li>Blockchain Consulting</li>
+        </ul>
+        <button class="btn btn-select" data-tier="elite">Select Elite</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/plan-selector.js"></script>
+</body>
+</html>
+
