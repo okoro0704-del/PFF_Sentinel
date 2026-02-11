@@ -1,0 +1,26 @@
+# Netlify — PFF Sentinel (static + serverless API)
+# Serves files from PFF-Sentinel-Core; /v1/sovryn/* → Netlify Functions
+
+[build]
+  base    = "PFF-Sentinel-Core"
+  publish = "."
+  # No build command — serving public files only
+
+# SOVRYN Audit API: rewrite to serverless functions (so buttons/audit work)
+[[redirects]]
+  from   = "/v1/sovryn/challenge"
+  to     = "/.netlify/functions/sovryn-challenge"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/v1/sovryn/audit"
+  to     = "/.netlify/functions/sovryn-audit"
+  status = 200
+  force  = true
+
+# SPA fallback: unknown paths serve index.html (avoids 404)
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200

@@ -1,7 +1,15 @@
 /**
  * PFF Sovereign Handshake v2.0 — Face Layer
  * Captures 3D geometry proxy and liveness from front camera.
+ * Channel 1 (Biometric Integrity): Reject liveness < LIVENESS_MIN to prevent deepfake/photo-spoofing.
  */
+
+/** Minimum liveness confidence (0–1). Below this, scan is rejected (anti–deepfake / photo-spoofing). */
+const DEFAULT_LIVENESS_MIN = 0.98;
+export const LIVENESS_MIN =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_LIVENESS_MIN != null)
+    ? Number(import.meta.env.VITE_LIVENESS_MIN)
+    : DEFAULT_LIVENESS_MIN;
 
 let stream = null;
 let videoEl = null;
@@ -68,6 +76,11 @@ export async function captureFaceSignals() {
   const imageData2 = ctx.getImageData(0, 0, w, h);
   const diff = pixelDiff(imageData.data, imageData2.data);
   const livenessScore = Math.min(1, diff / 0.01);
+
+  // Channel 1: Reject if below threshold (deepfake/photo-spoof protection)
+  if (livenessScore < LIVENESS_MIN) {
+    throw new Error(`LIVENESS_REJECTED: score ${livenessScore.toFixed(3)} below minimum ${LIVENESS_MIN}`);
+  }
 
   return { geometryHash, livenessScore };
 }

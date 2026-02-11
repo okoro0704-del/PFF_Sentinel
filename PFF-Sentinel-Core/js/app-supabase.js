@@ -30,6 +30,9 @@ import { updateFourPillarAnchors } from './supabase-client.js';
 import { connectWallet, isWalletConnected } from './SovereignProvider.js';
 import { startMintingStatusListener, onVaultSecured } from './minting-status-bridge.js';
 import { logConsent } from './consent-log-stream.js';
+import { fetchChallenge, getStoredChallenge, submitAudit, clearChallenge } from './sovryn-audit-client.js';
+import { checkOrigin } from './origin-pinning.js';
+import { autoMintOnVerification } from './MintingProtocol.js';
 
 const faceVideo = document.getElementById('faceVideo');
 const faceCanvas = document.getElementById('faceCanvas');
@@ -138,6 +141,13 @@ async function startScan() {
   setStatus('fingerStatus', 'Starting…', true);
 
   try {
+    // Channel 2: Get one-time nonce before opening camera (audit valid only if response within 60s)
+    try {
+      await fetchChallenge();
+    } catch (e) {
+      console.warn('Audit challenge unavailable:', e.message);
+    }
+
     faceCanvas.width = 640;
     faceCanvas.height = 480;
 
@@ -181,7 +191,7 @@ function stopScan() {
 
 /**
  * Verify Four-Pillar cohesion (GPS + Device + Face + Fingerprint)
- * On success: marks is_fully_verified=TRUE in Supabase and triggers VIDA minting
+ * On success: audit (Channels 2–3), origin check (Channel 4), then mint unless manual_audit_required
  */
 async function verify() {
   if (!scanActive) {
@@ -195,15 +205,65 @@ async function verify() {
   try {
     const result = await verifyCohesion({ video: faceVideo, canvas: faceCanvas });
     if (result.ok) {
-      showResult(`✅ FOUR-PILLAR VERIFIED! Elapsed: ${result.details.elapsed}ms`, true);
-      console.log('Verification details:', result.details);
+      const deviceId = await getDeviceUUID();
+      const faceResult = result.details?.faceResult;
+      const challenge = getStoredChallenge();
+
+      // Channel 4: Geographic & device pinning
+      const origin = await checkOrigin(deviceId);
+
+      // Channel 2 + 3: Submit signed audit (nonce + x-sovryn-secret); void if >60s
+      let auditOk = false;
+      if (challenge && faceResult && challenge.nonce && challenge.expiresAt) {
+        const auditResult = await submitAudit(
+          faceResult,
+          challenge.nonce,
+          challenge.expiresAt,
+          {
+            device_id: deviceId,
+            country_code: origin.country_code,
+            manual_audit_required: origin.manual_audit_required,
+          }
+        );
+        auditOk = auditResult.ok;
+        if (auditResult.voided) console.warn('Audit voided: response after 60s');
+        if (!auditResult.ok && auditResult.error) console.warn('Audit submit:', auditResult.error);
+        clearChallenge();
+      }
+
+      if (origin.manual_audit_required) {
+        showResult('✅ Verified. Manual audit required before 11 VIDA (VPN or location mismatch).', true);
+        return;
+      }
+
+      if (!auditOk && challenge) {
+        showResult('✅ FOUR-PILLAR VERIFIED. Audit could not be submitted — check API/secret.', true);
+        return;
+      }
+
+      // Auto-mint when origin OK and (audit OK or no audit config)
+      try {
+        const mintResult = await autoMintOnVerification(deviceId);
+        if (mintResult.success) {
+          showResult(`✅ FOUR-PILLAR VERIFIED! VIDA minted. Elapsed: ${result.details.elapsed}ms`, true);
+        } else {
+          showResult(`✅ Verified. Mint failed: ${mintResult.error}`, true);
+        }
+      } catch (mintErr) {
+        showResult(`✅ Verified. Mint error: ${mintErr.message}`, true);
+      }
     } else {
       showResult(`❌ Verification failed: ${result.reason}`, false);
       console.warn('Verification failed:', result);
     }
   } catch (err) {
     console.error('Verify error:', err);
-    showResult('❌ Verification error: ' + err.message, false);
+    const msg = err.message || '';
+    if (msg.includes('LIVENESS_REJECTED')) {
+      showResult('❌ Face scan rejected: liveness below 0.98 (possible spoof).', false);
+    } else {
+      showResult('❌ Verification error: ' + (err.message || 'Unknown'), false);
+    }
   }
 }
 

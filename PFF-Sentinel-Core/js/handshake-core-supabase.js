@@ -5,12 +5,11 @@
  * ALL DATA SYNCED TO SUPABASE DATABASE.
  */
 
-import { captureFaceSignals } from './capture-face.js';
+import { captureFaceSignals, LIVENESS_MIN } from './capture-face.js';
 import { captureFingerprintSignals } from './capture-finger.js';
 import { isDeviceBound, getDeviceUUID } from './hardware-sync.js';
 import { getCurrentLocation, verifyLocationMatch, getLocationStatus } from './location-layer.js';
 import { getProfile, updateBiometricHashes, markFullyVerified } from './supabase-client.js';
-import { autoMintOnVerification } from './MintingProtocol.js';
 import { logConsent, logAccessAttempt } from './consent-log-stream.js';
 
 const TEMPLATE_STORAGE_KEY = 'pff_absolute_truth_template'; // Fallback only
@@ -186,9 +185,10 @@ export async function verifyCohesion(options = {}) {
     return { ok: false, reason: 'WINDOW_EXCEEDED', details: { elapsed: Date.now() - startTime } };
   }
 
+  // Channel 1: Liveness must be >= LIVENESS_MIN (enforced in captureFaceSignals; double-check here)
   const faceOk = !template.faceGeometryHash
     ? true
-    : faceResult && hashMatch(template.faceGeometryHash, faceResult.geometryHash, 0.15) && faceResult.livenessScore >= Math.min(0.01, template.faceLivenessMin);
+    : faceResult && hashMatch(template.faceGeometryHash, faceResult.geometryHash, 0.15) && faceResult.livenessScore >= LIVENESS_MIN;
   const fingerOk = fingerResult && (fingerResult.ridgeMatch === template.fingerRidgeMatch || template.fingerRidgeMatch === true);
 
   const ok = gpsOk && deviceBound && faceOk && fingerOk;
@@ -200,23 +200,11 @@ export async function verifyCohesion(options = {}) {
     await logAccessAttempt('Access denied: cohesion mismatch', { success: false, reason: 'MISMATCH', faceOk, fingerOk }, deviceId);
   }
   
-  // If fully verified, mark in Supabase and trigger VIDA minting
+  // If fully verified, mark in Supabase. Minting is done by app after audit + origin check (Channels 2–4).
   if (ok) {
     await markFullyVerified(deviceId);
-    
-    // Auto-mint 5 VIDA CAP ($900 spendable / $4000 locked)
-    try {
-      const mintResult = await autoMintOnVerification(deviceId);
-      if (mintResult.success) {
-        console.log('✅ 5 VIDA CAP minted successfully:', mintResult.txHash);
-      } else {
-        console.warn('⚠️ VIDA minting failed (verification still successful):', mintResult.error);
-      }
-    } catch (mintErr) {
-      console.error('VIDA minting error:', mintErr);
-    }
   }
-  
+
   return {
     ok,
     reason: ok ? 'FOUR_PILLAR_VERIFIED' : (gpsOk ? '' : 'GPS') + (deviceBound ? '' : 'DEVICE') + (faceOk ? '' : 'FACE') + (fingerOk ? '' : 'FINGER') || 'MISMATCH',
@@ -226,6 +214,7 @@ export async function verifyCohesion(options = {}) {
       deviceBound,
       faceOk,
       fingerOk,
+      faceResult: ok ? faceResult : undefined,
     },
   };
 }
