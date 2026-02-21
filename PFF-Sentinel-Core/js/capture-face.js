@@ -4,12 +4,12 @@
  * Channel 1 (Biometric Integrity): Reject liveness < LIVENESS_MIN to prevent deepfake/photo-spoofing.
  */
 
-/** Minimum liveness confidence (0–1). Below this, scan is rejected (anti–deepfake / photo-spoofing). */
+/** Minimum liveness confidence (0–1). Next.js: NEXT_PUBLIC_LIVENESS_MIN or Vite: VITE_LIVENESS_MIN */
 const DEFAULT_LIVENESS_MIN = 0.98;
-export const LIVENESS_MIN =
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_LIVENESS_MIN != null)
-    ? Number(import.meta.env.VITE_LIVENESS_MIN)
-    : DEFAULT_LIVENESS_MIN;
+const envLiveness =
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_LIVENESS_MIN) ||
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_LIVENESS_MIN);
+export const LIVENESS_MIN = envLiveness != null ? Number(envLiveness) : DEFAULT_LIVENESS_MIN;
 
 let stream = null;
 let videoEl = null;

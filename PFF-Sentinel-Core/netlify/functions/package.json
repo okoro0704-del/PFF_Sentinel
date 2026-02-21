@@ -1,0 +1,9 @@
+{
+  "name": "pff-sentinel-functions",
+  "private": true,
+  "description": "Netlify serverless functions for PFF Sentinel (sovryn-audit uses ethers for releaseVidaCap)",
+  "dependencies": {
+    "ethers": "^6.16.0",
+    "@supabase/supabase-js": "^2.94.1"
+  }
+}

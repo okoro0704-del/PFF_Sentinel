@@ -1,0 +1,38 @@
+# Netlify Environment Variables — PFF Sentinel
+# 1. Copy this file or open it.
+# 2. Copy the SAME values from your other project (PFF / SOVRYN CHAIN) into the right-hand side.
+# 3. In Netlify: Site → Environment variables → "Import from .env" or add each key/value.
+# 4. Replace YOUR-PFF-SENTINEL-SITE with your actual Netlify site name for SOVRYN_API_URL.
+
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SOVRYN_API_URL=https://YOUR-PFF-SENTINEL-SITE.netlify.app
+NEXT_PUBLIC_SOVRYN_SECRET=
+SOVRYN_SECRET=
+NEXT_PUBLIC_RSK_NETWORK=mainnet
+NEXT_PUBLIC_CONTRACT_ADDRESS=
+NEXT_PUBLIC_VIDA_TOKEN_ADDRESS=
+NEXT_PUBLIC_DLLR_TOKEN_ADDRESS=
+NEXT_PUBLIC_USDT_TOKEN_ADDRESS=
+NEXT_PUBLIC_EXPECTED_COUNTRY=NG
+RSL_WS_URL=
+RSL_POLL_URL=
+NEXT_PUBLIC_GEO_CHECK_URL=
+NEXT_PUBLIC_LIVENESS_MIN=
+
+# --- releaseVidaCap (sovryn-audit function only; server-side) ---
+POLYGON_RPC_URL=https://polygon-rpc.com
+CONTRACT_ADDRESS=
+WALLET_PRIVATE_KEY=
+
+# --- National Lock-Up Bridge (swap-to-national / swapToNational) ---
+# Default ngnVIDA contract: 0x839a16B255720EE8ba525555075BA763172be284 (set to override)
+NGN_VIDA_CONTRACT_ADDRESS=
+USD_TO_NGN_RATE=
+USD_NGN_RATE_URL=
+USD_TO_NGN_FALLBACK=1500
+SUPABASE_SERVICE_ROLE_KEY=
+
+# --- Automated Gas Drip (monthly POL to active Sentinels) ---
+# Trigger via external cron: POST /v1/sovryn/gas-drip with x-sovryn-secret
+GAS_DRIP_AMOUNT=0.001

@@ -128,6 +128,32 @@ CREATE INDEX idx_stats_sentinel ON verification_stats(sentinel_wallet_address);
 CREATE INDEX idx_stats_date ON verification_stats(date);
 
 -- ============================================
+-- NATIONAL SWAP BRIDGE: national_blocks (reserve tracking)
+-- ============================================
+CREATE TABLE IF NOT EXISTS national_blocks (
+  country_code TEXT PRIMARY KEY,
+  total_vida_reserved NUMERIC NOT NULL DEFAULT 0,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_national_blocks_country ON national_blocks(country_code);
+
+-- ============================================
+-- GAS DRIP: gas_drip_history (Automated Gas Drip tracking)
+-- ============================================
+CREATE TABLE IF NOT EXISTS gas_drip_history (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  wallet_address TEXT NOT NULL,
+  drip_month TEXT NOT NULL,
+  amount_pol NUMERIC NOT NULL DEFAULT 0.001,
+  tx_hash TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_gas_drip_month ON gas_drip_history(drip_month);
+CREATE INDEX IF NOT EXISTS idx_gas_drip_wallet_month ON gas_drip_history(wallet_address, drip_month);
+
+-- ============================================
 -- MASTER BACKEND: CONSENT_LOGS (Sentinel log stream)
 -- ============================================
 CREATE TABLE IF NOT EXISTS consent_logs (

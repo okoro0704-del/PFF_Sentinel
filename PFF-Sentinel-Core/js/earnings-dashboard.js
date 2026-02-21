@@ -4,8 +4,11 @@
  */
 
 import Chart from 'chart.js/auto';
+import { ethers } from 'ethers';
 import { getDeviceId } from './handshake-core.js';
 import { getProfile } from './supabase-client.js';
+import { connectWallet, getVidaContract, isWalletConnected, getConnectedAddress } from './SovereignProvider.js';
+import { NATIONAL_BLOCK_SINK } from './mainnet-destinations.js';
 import {
   getSentinelSubscriptions,
   getSubscriptionCounts,
@@ -18,10 +21,14 @@ import {
 // DOM Elements
 const walletAddressEl = document.getElementById('walletAddress');
 const vidaBalanceEl = document.getElementById('vidaBalance');
+const ngnVidaBalanceEl = document.getElementById('ngnVidaBalance');
 const dllrBalanceEl = document.getElementById('dllrBalance');
 const usdtBalanceEl = document.getElementById('usdtBalance');
 const btnConnectWallet = document.getElementById('btnConnectWallet');
 const btnClaimEarnings = document.getElementById('btnClaimEarnings');
+
+const nationalReserveVidaLockedEl = document.getElementById('nationalReserveVidaLocked');
+const nationalReserveNgnVidaIssuedEl = document.getElementById('nationalReserveNgnVidaIssued');
 
 const totalRegistrationsEl = document.getElementById('totalRegistrations');
 const activeSubscriptionsEl = document.getElementById('activeSubscriptions');
@@ -104,11 +111,54 @@ async function loadWalletBalances() {
       dllrBalanceEl.textContent = '0.00';
       usdtBalanceEl.textContent = '0.00';
     }
+    if (ngnVidaBalanceEl && !ngnVidaBalanceEl.dataset.fetched) {
+      // ngnVIDA balance is set by loadNationalReserve when wallet is 0x...
+    }
   } catch (err) {
     console.error('Error loading wallet balances:', err);
     vidaBalanceEl.textContent = '0.00';
     dllrBalanceEl.textContent = '0.00';
     usdtBalanceEl.textContent = '0.00';
+  }
+}
+
+// ============================================
+// NATIONAL RESERVE (VIDA in sink + ngnVIDA issued)
+// ============================================
+
+async function loadNationalReserve() {
+  try {
+    const isEthAddress = currentWalletAddress && currentWalletAddress.startsWith('0x') && currentWalletAddress.length === 42;
+    const url = '/v1/sovryn/national-reserve' + (isEthAddress ? '?wallet=' + encodeURIComponent(currentWalletAddress) : '');
+    const res = await fetch(url);
+    if (!res.ok) {
+      if (nationalReserveVidaLockedEl) nationalReserveVidaLockedEl.textContent = '--';
+      if (nationalReserveNgnVidaIssuedEl) nationalReserveNgnVidaIssuedEl.textContent = '--';
+      if (ngnVidaBalanceEl) ngnVidaBalanceEl.textContent = '--';
+      return;
+    }
+    const data = await res.json();
+    if (nationalReserveVidaLockedEl) {
+      const v = data.vidaLockedInSink;
+      nationalReserveVidaLockedEl.textContent = typeof v === 'number' && Number.isFinite(v) ? v.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '--';
+    }
+    if (nationalReserveNgnVidaIssuedEl) {
+      const n = data.ngnVidaIssued;
+      nationalReserveNgnVidaIssuedEl.textContent = typeof n === 'number' && Number.isFinite(n) ? n.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '--';
+    }
+    if (ngnVidaBalanceEl) {
+      if (data.walletNgnVidaBalance != null && Number.isFinite(data.walletNgnVidaBalance)) {
+        ngnVidaBalanceEl.textContent = data.walletNgnVidaBalance.toFixed(2);
+        ngnVidaBalanceEl.dataset.fetched = '1';
+      } else {
+        ngnVidaBalanceEl.textContent = isEthAddress ? '0.00' : '--';
+      }
+    }
+  } catch (err) {
+    console.error('Error loading national reserve:', err);
+    if (nationalReserveVidaLockedEl) nationalReserveVidaLockedEl.textContent = '--';
+    if (nationalReserveNgnVidaIssuedEl) nationalReserveNgnVidaIssuedEl.textContent = '--';
+    if (ngnVidaBalanceEl) ngnVidaBalanceEl.textContent = '--';
   }
 }
 
@@ -161,6 +211,9 @@ async function loadDashboardData() {
 
     // Load verification stats and update charts
     await loadVerificationStats();
+
+    // National Reserve card: VIDA locked in sink + ngnVIDA issued (and wallet ngnVIDA balance if 0x...)
+    await loadNationalReserve();
     
     // Load wallet balances
     await loadWalletBalances();
@@ -377,6 +430,157 @@ function updateRevenueChart(labels, data) {
     }
   });
 }
+
+// ============================================
+// CONVERT VIDA TO NGNVIDA MODAL
+// ============================================
+
+function getApiBase() {
+  return (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_SOVRYN_API_URL || import.meta.env?.SOVRYN_API_URL))
+    || (typeof window !== 'undefined' ? window.location.origin : '');
+}
+
+function getSovrynSecret() {
+  return (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_SOVRYN_SECRET || import.meta.env?.SOVRYN_SECRET))
+    || (typeof process !== 'undefined' && process.env?.VITE_SOVRYN_SECRET) || '';
+}
+
+async function callSwapToNational(amountVida, userAddress, transferTxHash) {
+  const base = getApiBase();
+  if (!base) throw new Error('SOVRYN API URL not configured');
+  const url = `${base.replace(/\/$/, '')}/v1/sovryn/swap-to-national`;
+  const headers = { 'Content-Type': 'application/json' };
+  const s = getSovrynSecret();
+  if (s) headers['x-sovryn-secret'] = s;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ amountVida, userAddress, transferTxHash }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || data.detail || `Swap failed: ${res.status}`);
+  return data;
+}
+
+const convertVidaModal = document.getElementById('convertVidaModal');
+const convertModalConnect = document.getElementById('convertModalConnect');
+const convertModalForm = document.getElementById('convertModalForm');
+const btnModalConnectWallet = document.getElementById('btnModalConnectWallet');
+const convertAmount = document.getElementById('convertAmount');
+const convertTxHash = document.getElementById('convertTxHash');
+const btnTransferAndSwap = document.getElementById('btnTransferAndSwap');
+const btnCompleteSwap = document.getElementById('btnCompleteSwap');
+const btnCloseConvertModal = document.getElementById('btnCloseConvertModal');
+const btnConvertVidaToNgnVida = document.getElementById('btnConvertVidaToNgnVida');
+
+function openConvertModal() {
+  if (!convertVidaModal) return;
+  convertVidaModal.style.display = 'block';
+  convertAmount.value = '';
+  convertTxHash.value = '';
+  if (isWalletConnected()) {
+    convertModalConnect.style.display = 'none';
+    convertModalForm.style.display = 'block';
+  } else {
+    convertModalConnect.style.display = 'block';
+    convertModalForm.style.display = 'none';
+  }
+}
+
+function closeConvertModal() {
+  if (convertVidaModal) convertVidaModal.style.display = 'none';
+}
+
+async function handleModalConnectWallet() {
+  const result = await connectWallet();
+  if (result.success) {
+    convertModalConnect.style.display = 'none';
+    convertModalForm.style.display = 'block';
+  } else {
+    alert(result.error || 'Failed to connect wallet');
+  }
+}
+
+async function handleTransferAndSwap() {
+  if (!isWalletConnected()) {
+    alert('Please connect your Web3 wallet first.');
+    return;
+  }
+  const amount = parseFloat(convertAmount?.value || 0);
+  if (!Number.isFinite(amount) || amount <= 0) {
+    alert('Enter a valid VIDA amount (e.g. 0.1)');
+    return;
+  }
+  const vida = getVidaContract();
+  if (!vida) {
+    alert('VIDA contract not available. Ensure Polygon is configured.');
+    return;
+  }
+  const userAddress = getConnectedAddress();
+  if (!userAddress) {
+    alert('Wallet address not found.');
+    return;
+  }
+  btnTransferAndSwap.disabled = true;
+  btnTransferAndSwap.textContent = 'Transferring...';
+  try {
+    const amountWei = ethers.parseEther(amount.toString());
+    const tx = await vida.transfer(NATIONAL_BLOCK_SINK, amountWei);
+    btnTransferAndSwap.textContent = 'Waiting for confirmation...';
+    await tx.wait();
+    const data = await callSwapToNational(amount, userAddress, tx.hash);
+    alert(`Swap complete! Mint tx: ${data.mintTxHash || 'N/A'}. Check your ngnVIDA balance.`);
+    closeConvertModal();
+    await loadNationalReserve();
+    await loadWalletBalances();
+  } catch (err) {
+    alert(err.message || 'Transfer or swap failed');
+  } finally {
+    btnTransferAndSwap.disabled = false;
+    btnTransferAndSwap.textContent = 'Transfer VIDA & Swap';
+  }
+}
+
+async function handleCompleteSwap() {
+  const amount = parseFloat(convertAmount?.value || 0);
+  const txHash = (convertTxHash?.value || '').trim();
+  if (!Number.isFinite(amount) || amount <= 0) {
+    alert('Enter a valid VIDA amount');
+    return;
+  }
+  if (!txHash || !txHash.startsWith('0x')) {
+    alert('Paste the transaction hash of your VIDA transfer to the National Sink');
+    return;
+  }
+  let userAddress = getConnectedAddress();
+  if (!userAddress && currentWalletAddress && currentWalletAddress.startsWith('0x')) {
+    userAddress = currentWalletAddress;
+  }
+  if (!userAddress) {
+    alert('Provide your wallet address: connect your Web3 wallet or use a 0x address.');
+    return;
+  }
+  btnCompleteSwap.disabled = true;
+  btnCompleteSwap.textContent = 'Processing...';
+  try {
+    const data = await callSwapToNational(amount, userAddress, txHash);
+    alert(`Swap complete! Mint tx: ${data.mintTxHash || 'N/A'}. Check your ngnVIDA balance.`);
+    closeConvertModal();
+    await loadNationalReserve();
+    await loadWalletBalances();
+  } catch (err) {
+    alert(err.message || 'Swap failed');
+  } finally {
+    btnCompleteSwap.disabled = false;
+    btnCompleteSwap.textContent = 'Complete Swap';
+  }
+}
+
+if (btnConvertVidaToNgnVida) btnConvertVidaToNgnVida.addEventListener('click', openConvertModal);
+if (btnModalConnectWallet) btnModalConnectWallet.addEventListener('click', handleModalConnectWallet);
+if (btnTransferAndSwap) btnTransferAndSwap.addEventListener('click', handleTransferAndSwap);
+if (btnCompleteSwap) btnCompleteSwap.addEventListener('click', handleCompleteSwap);
+if (btnCloseConvertModal) btnCloseConvertModal.addEventListener('click', closeConvertModal);
 
 // ============================================
 // EVENT LISTENERS

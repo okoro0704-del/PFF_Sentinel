@@ -27,12 +27,12 @@ import {
 import { setShadowMode } from './shadow-state.js';
 import { showShadowUI, hideShadowUI, applyShadowStateIfActive } from './shadow-ui.js';
 import { updateFourPillarAnchors } from './supabase-client.js';
-import { connectWallet, isWalletConnected } from './SovereignProvider.js';
+import { connectWallet, isWalletConnected, getConnectedAddress } from './SovereignProvider.js';
 import { startMintingStatusListener, onVaultSecured } from './minting-status-bridge.js';
 import { logConsent } from './consent-log-stream.js';
 import { fetchChallenge, getStoredChallenge, submitAudit, clearChallenge } from './sovryn-audit-client.js';
 import { checkOrigin } from './origin-pinning.js';
-import { autoMintOnVerification } from './MintingProtocol.js';
+import { autoMintOnVerification, getVidaBalance } from './MintingProtocol.js';
 
 const faceVideo = document.getElementById('faceVideo');
 const faceCanvas = document.getElementById('faceCanvas');
@@ -223,6 +223,7 @@ async function verify() {
             device_id: deviceId,
             country_code: origin.country_code,
             manual_audit_required: origin.manual_audit_required,
+            user_address: getConnectedAddress() || undefined,
           }
         );
         auditOk = auditResult.ok;
@@ -243,13 +244,29 @@ async function verify() {
 
       // Auto-mint when origin OK and (audit OK or no audit config)
       try {
+        resultEl.classList.add('result--spinner');
+        resultEl.classList.remove('result--celebrate');
+        showResult('Transacting on Mainnet...', false);
+
         const mintResult = await autoMintOnVerification(deviceId);
+
+        resultEl.classList.remove('result--spinner');
         if (mintResult.success) {
-          showResult(`✅ FOUR-PILLAR VERIFIED! VIDA minted. Elapsed: ${result.details.elapsed}ms`, true);
+          resultEl.classList.add('result--celebrate');
+          let balanceText = '5 VIDA';
+          try {
+            const addr = getConnectedAddress();
+            if (addr) {
+              const bal = await getVidaBalance(addr);
+              if (bal.success && bal.total != null) balanceText = `${Number(bal.total).toFixed(2)} VIDA`;
+            }
+          } catch (_) {}
+          showResult(`✅ Success! Your balance: ${balanceText}`, true);
         } else {
           showResult(`✅ Verified. Mint failed: ${mintResult.error}`, true);
         }
       } catch (mintErr) {
+        resultEl.classList.remove('result--spinner');
         showResult(`✅ Verified. Mint error: ${mintErr.message}`, true);
       }
     } else {
@@ -342,6 +359,11 @@ btnStart.addEventListener('click', startScan);
 btnVerify.addEventListener('click', verify);
 btnEnroll.addEventListener('click', enroll);
 btnBind.addEventListener('click', bindDevice);
+
+const btnConnectWallet = document.getElementById('btnConnectWallet');
+if (btnConnectWallet) {
+  btnConnectWallet.addEventListener('click', connectWeb3Wallet);
+}
 
 // Initialize app
 (async function init() {

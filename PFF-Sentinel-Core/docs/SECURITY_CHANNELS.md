@@ -9,7 +9,7 @@ Four channels protect the face scan and audit flow from spoofing, replay, and un
 - **Requirement**: Reject any face scan with liveness confidence **below 0.98** to prevent deepfake or photo-spoofing.
 - **Implementation**:
   - `js/capture-face.js`: `LIVENESS_MIN` (default `0.98`). If `livenessScore < LIVENESS_MIN`, `captureFaceSignals()` throws `LIVENESS_REJECTED`.
-  - Optional env: `VITE_LIVENESS_MIN` (e.g. `0.01` for dev when using the built-in motion proxy).
+  - Optional env: `NEXT_PUBLIC_LIVENESS_MIN` or `VITE_LIVENESS_MIN` (e.g. `0.01` for dev).
 - **Note**: The in-app liveness proxy (pixel diff between frames) is a placeholder. For production, integrate a passive liveness SDK that returns a 0–1 confidence score and keep the 0.98 threshold.
 
 ---
@@ -31,8 +31,8 @@ Four channels protect the face scan and audit flow from spoofing, replay, and un
 
 - **Requirement**: The Sentinel frontend may only talk to `v1/sovryn/audit` (and challenge) if the request includes the correct **x-sovryn-secret** header. If the secret is missing or wrong, the API must return **401 Unauthorized** immediately.
 - **Implementation**:
-  - All requests to the SOVRYN API (challenge and audit) send header: `x-sovryn-secret: <VITE_SOVRYN_SECRET>`.
-  - Env: `VITE_SOVRYN_API_URL`, `VITE_SOVRYN_SECRET`.
+  - All requests to the SOVRYN API (challenge and audit) send header: `x-sovryn-secret`.
+  - Env: `NEXT_PUBLIC_SOVRYN_API_URL`, `NEXT_PUBLIC_SOVRYN_SECRET` (Next.js) or `VITE_SOVRYN_*` (Vite).
 - **Backend**: On every request to `/v1/sovryn/*`, check `x-sovryn-secret` against the configured secret; if missing or incorrect, respond with **401** and do not process the request.
 
 ---
@@ -43,10 +43,10 @@ Four channels protect the face scan and audit flow from spoofing, replay, and un
 - **Implementation**:
   - `js/origin-pinning.js`: `checkOrigin(deviceId)`:
     - Ensures device is in the allowed list (same as Four-Pillar device binding).
-    - Resolves `country_code` from optional geo API (IP), profile, or GPS; compares to `VITE_EXPECTED_COUNTRY` (e.g. `NG`).
+    - Resolves `country_code` from optional geo API (IP), profile, or GPS; compares to expected country (e.g. `NG`).
     - Optional: use a geo API that returns `is_vpn` to set `suspected_vpn`.
   - If `manual_audit_required` (VPN or geo mismatch): app **does not** auto-mint; it shows “Manual audit required before 11 VIDA” and the backend can mint 11 VIDA after manual review.
-- **Env**: `VITE_EXPECTED_COUNTRY`, optional `VITE_GEO_CHECK_URL` (e.g. returns `{ country_code, is_vpn }`).
+- **Env**: `NEXT_PUBLIC_EXPECTED_COUNTRY` or `VITE_EXPECTED_COUNTRY`; optional `NEXT_PUBLIC_GEO_CHECK_URL` or `VITE_GEO_CHECK_URL`.
 
 ---
 
@@ -60,10 +60,10 @@ Four channels protect the face scan and audit flow from spoofing, replay, and un
 
 ## Environment Variables
 
-| Variable | Purpose |
-|----------|--------|
-| `VITE_SOVRYN_API_URL` | Base URL for `/v1/sovryn/challenge` and `/v1/sovryn/audit` |
-| `VITE_SOVRYN_SECRET` | Secret sent as `x-sovryn-secret`; API must return 401 if wrong/missing |
-| `VITE_EXPECTED_COUNTRY` | Expected country code (e.g. `NG`) for origin pinning |
-| `VITE_GEO_CHECK_URL` | Optional; returns `{ country_code, is_vpn }` for current IP |
-| `VITE_LIVENESS_MIN` | Optional; override liveness threshold (default 0.98) |
+| Variable | Purpose (Next.js use NEXT_PUBLIC_*, Vite use VITE_*) |
+|----------|------------------------------------------------------|
+| `NEXT_PUBLIC_SOVRYN_API_URL` / `VITE_SOVRYN_API_URL` | Base URL for `/v1/sovryn/challenge` and `/v1/sovryn/audit` |
+| `NEXT_PUBLIC_SOVRYN_SECRET` / `VITE_SOVRYN_SECRET` | Secret sent as `x-sovryn-secret`; API returns 401 if wrong/missing |
+| `NEXT_PUBLIC_EXPECTED_COUNTRY` / `VITE_EXPECTED_COUNTRY` | Expected country code (e.g. `NG`) for origin pinning |
+| `NEXT_PUBLIC_GEO_CHECK_URL` / `VITE_GEO_CHECK_URL` | Optional; returns `{ country_code, is_vpn }` for current IP |
+| `NEXT_PUBLIC_LIVENESS_MIN` / `VITE_LIVENESS_MIN` | Optional; override liveness threshold (default 0.98) |

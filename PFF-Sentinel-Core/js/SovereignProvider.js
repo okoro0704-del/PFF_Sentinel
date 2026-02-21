@@ -5,7 +5,7 @@
 
 import { ethers } from 'ethers';
 
-// Rootstock (RSK) Network Configuration
+// Network Configuration: RSK + Polygon (mainnet)
 const RSK_NETWORKS = {
   mainnet: {
     chainId: 30,
@@ -21,13 +21,58 @@ const RSK_NETWORKS = {
   }
 };
 
-// Default to testnet (change to 'mainnet' for production)
-const ACTIVE_NETWORK = import.meta.env.VITE_RSK_NETWORK || 'testnet';
+const POLYGON_NETWORKS = {
+  mainnet: {
+    chainId: 137,
+    name: 'Polygon Mainnet',
+    rpcUrl: 'https://polygon-rpc.com',
+    explorerUrl: 'https://polygonscan.com'
+  },
+  testnet: {
+    chainId: 80001,
+    name: 'Polygon Amoy',
+    rpcUrl: 'https://rpc-amoy.polygon.technology',
+    explorerUrl: 'https://amoy.polygonscan.com'
+  }
+};
 
-// Token Contract Addresses (deploy your contracts and update these)
-const VIDA_TOKEN_ADDRESS = import.meta.env.VITE_VIDA_TOKEN_ADDRESS || '0x0000000000000000000000000000000000000000';
-const DLLR_TOKEN_ADDRESS = import.meta.env.VITE_DLLR_TOKEN_ADDRESS || '0x0000000000000000000000000000000000000000';
-const USDT_TOKEN_ADDRESS = import.meta.env.VITE_USDT_TOKEN_ADDRESS || '0x0000000000000000000000000000000000000000';
+// All networks keyed by chain type and mainnet/testnet
+const CHAINS = { rsk: RSK_NETWORKS, polygon: POLYGON_NETWORKS };
+
+// Next.js: NEXT_PUBLIC_* or Vite: VITE_*. Values: testnet | mainnet | polygon | polygon_testnet
+const NETWORK_ENV =
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_RSK_NETWORK) ||
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_RSK_NETWORK) ||
+  'testnet';
+
+// Resolve to { chain, network } e.g. { chain: 'rsk', network: 'mainnet' } or { chain: 'polygon', network: 'mainnet' }
+function resolveNetwork() {
+  const v = (NETWORK_ENV || '').toLowerCase();
+  if (v === 'polygon' || v === 'polygon_mainnet') return { chain: 'polygon', network: 'mainnet' };
+  if (v === 'polygon_testnet' || v === 'polygon_amoy') return { chain: 'polygon', network: 'testnet' };
+  if (v === 'mainnet') return { chain: 'rsk', network: 'mainnet' };
+  return { chain: 'rsk', network: 'testnet' };
+}
+
+const { chain: ACTIVE_CHAIN, network: ACTIVE_NETWORK } = resolveNetwork();
+
+// Contract address: NEXT_PUBLIC_CONTRACT_ADDRESS (mainnet hook) overrides VIDA_TOKEN_ADDRESS
+const CONTRACT_ADDRESS_ENV =
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_CONTRACT_ADDRESS) ||
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_CONTRACT_ADDRESS);
+const VIDA_TOKEN_ADDRESS =
+  CONTRACT_ADDRESS_ENV ||
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_VIDA_TOKEN_ADDRESS) ||
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_VIDA_TOKEN_ADDRESS) ||
+  '0x0000000000000000000000000000000000000000';
+const DLLR_TOKEN_ADDRESS =
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_DLLR_TOKEN_ADDRESS) ||
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_DLLR_TOKEN_ADDRESS) ||
+  '0x0000000000000000000000000000000000000000';
+const USDT_TOKEN_ADDRESS =
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_USDT_TOKEN_ADDRESS) ||
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_USDT_TOKEN_ADDRESS) ||
+  '0x0000000000000000000000000000000000000000';
 
 // Standard ERC-20 ABI (for DLLR and USDT)
 const ERC20_ABI = [
@@ -77,12 +122,13 @@ let usdtContract = null;
 let connectedAddress = null;
 
 /**
- * Initialize RSK provider (read-only)
+ * Initialize provider (read-only) — RSK or Polygon based on ACTIVE_CHAIN
  * @returns {ethers.JsonRpcProvider}
  */
 export function initProvider() {
   if (!provider) {
-    const network = RSK_NETWORKS[ACTIVE_NETWORK];
+    const networks = CHAINS[ACTIVE_CHAIN] || RSK_NETWORKS;
+    const network = networks[ACTIVE_NETWORK] || networks.testnet;
     provider = new ethers.JsonRpcProvider(network.rpcUrl, {
       chainId: network.chainId,
       name: network.name
@@ -127,20 +173,19 @@ export async function connectWallet() {
     connectedAddress = await signer.getAddress();
 
     // Check if connected to correct network
-    const network = await browserProvider.getNetwork();
-    const expectedChainId = RSK_NETWORKS[ACTIVE_NETWORK].chainId;
+    const networks = CHAINS[ACTIVE_CHAIN] || RSK_NETWORKS;
+    const expectedNetwork = networks[ACTIVE_NETWORK] || networks.testnet;
+    const expectedChainId = expectedNetwork.chainId;
 
     if (Number(network.chainId) !== expectedChainId) {
-      // Request network switch
       try {
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: `0x${expectedChainId.toString(16)}` }]
         });
       } catch (switchError) {
-        // Network not added, try to add it
         if (switchError.code === 4902) {
-          await addRSKNetwork();
+          await addEthereumNetwork(expectedNetwork);
         } else {
           throw switchError;
         }
@@ -160,16 +205,16 @@ export async function connectWallet() {
 }
 
 /**
- * Add RSK network to MetaMask
+ * Add network (RSK or Polygon) to MetaMask
  */
-async function addRSKNetwork() {
-  const network = RSK_NETWORKS[ACTIVE_NETWORK];
+async function addEthereumNetwork(network) {
+  const isPolygon = network.chainId === 137 || network.chainId === 80001;
   await window.ethereum.request({
     method: 'wallet_addEthereumChain',
     params: [{
       chainId: `0x${network.chainId.toString(16)}`,
       chainName: network.name,
-      nativeCurrency: { name: 'RBTC', symbol: 'RBTC', decimals: 18 },
+      nativeCurrency: isPolygon ? { name: 'MATIC', symbol: 'MATIC', decimals: 18 } : { name: 'RBTC', symbol: 'RBTC', decimals: 18 },
       rpcUrls: [network.rpcUrl],
       blockExplorerUrls: [network.explorerUrl]
     }]
@@ -201,11 +246,12 @@ export function isWalletConnected() {
 }
 
 /**
- * Get network info
+ * Get network info (RSK or Polygon)
  * @returns {Object}
  */
 export function getNetworkInfo() {
-  return RSK_NETWORKS[ACTIVE_NETWORK];
+  const networks = CHAINS[ACTIVE_CHAIN] || RSK_NETWORKS;
+  return networks[ACTIVE_NETWORK] || networks.testnet;
 }
 
 /**

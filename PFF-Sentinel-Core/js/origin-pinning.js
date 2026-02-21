@@ -8,14 +8,16 @@ import { isDeviceBound, getDeviceUUID } from './hardware-sync.js';
 import { getCurrentLocation, getLocationStatus } from './location-layer.js';
 import { getProfile } from './supabase-client.js';
 
-/** Expected country code (e.g. 'NG'). Set via env or config. */
+/** Expected country code (e.g. 'NG'). Next.js: NEXT_PUBLIC_* or Vite: VITE_* */
 const EXPECTED_COUNTRY = () =>
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_EXPECTED_COUNTRY) ||
   (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_EXPECTED_COUNTRY || import.meta.env?.EXPECTED_COUNTRY)) ||
   (typeof process !== 'undefined' && process.env?.VITE_EXPECTED_COUNTRY) ||
   'NG';
 
-/** Optional: API that returns { country_code, is_vpn } for current IP. Leave empty to use GPS-only. */
+/** Optional: API that returns { country_code, is_vpn }. Next.js: NEXT_PUBLIC_* or Vite: VITE_* */
 const GEO_API_URL = () =>
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_GEO_CHECK_URL) ||
   (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_GEO_CHECK_URL || import.meta.env?.GEO_CHECK_URL)) ||
   '';
 

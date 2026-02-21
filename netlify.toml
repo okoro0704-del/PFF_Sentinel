@@ -19,6 +19,24 @@
   status = 200
   force  = true
 
+[[redirects]]
+  from   = "/v1/sovryn/swap-to-national"
+  to     = "/.netlify/functions/swap-to-national"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/v1/sovryn/national-reserve"
+  to     = "/.netlify/functions/national-reserve"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/v1/sovryn/gas-drip"
+  to     = "/.netlify/functions/gas-drip"
+  status = 200
+  force  = true
+
 # SPA fallback: unknown paths serve index.html (avoids 404)
 [[redirects]]
   from   = "/*"

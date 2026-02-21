@@ -194,6 +194,10 @@
           <div class="balance-value" id="vidaBalance">--</div>
         </div>
         <div class="wallet-balance">
+          <div class="balance-label">ngnVIDA Balance</div>
+          <div class="balance-value" id="ngnVidaBalance">--</div>
+        </div>
+        <div class="wallet-balance">
           <div class="balance-label">DLLR Balance</div>
           <div class="balance-value" id="dllrBalance">--</div>
         </div>
@@ -203,6 +207,37 @@
         </div>
       </div>
       <button class="btn btn-primary" id="btnConnectWallet" style="margin-top: 20px;">Connect Wallet</button>
+      <button class="btn btn-primary" id="btnConvertVidaToNgnVida" style="margin-top: 20px; margin-left: 10px; background: linear-gradient(135deg, #059669, #10b981);">Convert VIDA to Spendable ngnVIDA</button>
+    </div>
+
+    <!-- Convert VIDA to ngnVIDA Modal -->
+    <div id="convertVidaModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background: rgba(30, 41, 59, 0.98); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 24px; max-width: 480px; margin: 60px auto;">
+        <h3 class="chart-title">🔄 Convert VIDA to ngnVIDA</h3>
+        <p class="stat-label">Transfer VIDA to the National Sink and receive ngnVIDA at the current USD/NGN rate (1 VIDA ≈ $1,000 in Naira).</p>
+        <div id="convertModalConnect" style="margin: 20px 0;">
+          <button class="btn btn-primary" id="btnModalConnectWallet">Connect Web3 Wallet</button>
+        </div>
+        <div id="convertModalForm" style="display: none; margin: 20px 0;">
+          <label class="stat-label">Amount (VIDA)</label>
+          <input type="number" id="convertAmount" min="0.001" step="0.001" placeholder="0.1" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.3); background: rgba(15, 23, 42, 0.8); color: #e2e8f0; margin-bottom: 12px;">
+          <button class="btn btn-primary" id="btnTransferAndSwap" style="width: 100%; margin-bottom: 12px;">Transfer VIDA & Swap</button>
+          <p class="stat-label" style="margin-top: 16px;">— Or paste tx hash if you already sent VIDA —</p>
+          <input type="text" id="convertTxHash" placeholder="0x..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.3); background: rgba(15, 23, 42, 0.8); color: #e2e8f0; margin-top: 8px;">
+          <button class="btn btn-primary" id="btnCompleteSwap" style="width: 100%; margin-top: 12px; background: linear-gradient(135deg, #059669, #10b981);">Complete Swap</button>
+        </div>
+        <button class="btn" id="btnCloseConvertModal" style="margin-top: 16px; background: #475569;">Close</button>
+      </div>
+    </div>
+    <style>.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; }</style>
+
+    <!-- National Reserve Card -->
+    <div class="stat-card" style="margin-bottom: 24px;">
+      <h2 class="chart-title">🇳🇬 National Reserve</h2>
+      <p class="stat-label">VIDA locked in sink (0x7EC8...b747)</p>
+      <div class="stat-value" id="nationalReserveVidaLocked">--</div>
+      <p class="stat-label" style="margin-top: 12px;">ngnVIDA issued in exchange</p>
+      <div class="stat-value success" id="nationalReserveNgnVidaIssued">--</div>
     </div>
 
     <!-- Stats Grid -->
@@ -246,7 +281,7 @@
             <th>Citizen ID</th>
             <th>Plan Tier</th>
             <th>Commission</th>
-            <th>VIDA Amount</th>
+            <th>VIDA / ngnVIDA</th>
             <th>Status</th>
           </tr>
         </thead>

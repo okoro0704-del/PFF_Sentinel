@@ -5,9 +5,15 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase configuration — Master Backend (must match PFF and SOVRYN CHAIN exactly)
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || import.meta.env.SUPABASE_URL || 'https://your-project.supabase.co';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.SUPABASE_ANON_KEY || 'your-anon-key';
+// Supabase configuration — Master Backend (Next.js: NEXT_PUBLIC_* or Vite: VITE_*)
+const SUPABASE_URL =
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SUPABASE_URL) ||
+  (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_SUPABASE_URL || import.meta.env?.SUPABASE_URL)) ||
+  'https://your-project.supabase.co';
+const SUPABASE_ANON_KEY =
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SUPABASE_ANON_KEY) ||
+  (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_SUPABASE_ANON_KEY || import.meta.env?.SUPABASE_ANON_KEY)) ||
+  'your-anon-key';
 
 // Initialize Supabase client (same project as Master / PFF / SOVRYN for Sentinel bonding)
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

@@ -7,11 +7,13 @@
 const AUDIT_NONCE_TTL_MS = 60 * 1000; // 60 seconds
 
 const baseUrl = () =>
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SOVRYN_API_URL) ||
   (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_SOVRYN_API_URL || import.meta.env?.SOVRYN_API_URL)) ||
   (typeof process !== 'undefined' && process.env?.VITE_SOVRYN_API_URL) ||
   '';
 
 const secret = () =>
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SOVRYN_SECRET) ||
   (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_SOVRYN_SECRET || import.meta.env?.SOVRYN_SECRET)) ||
   (typeof process !== 'undefined' && process.env?.VITE_SOVRYN_SECRET) ||
   '';

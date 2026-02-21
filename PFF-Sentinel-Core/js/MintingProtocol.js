@@ -15,6 +15,9 @@ const VIDA_CAP = {
   locked: 4000 // $4000 USD equivalent (locked until conditions met)
 };
 
+/** Gas buffer (units) to avoid failures under mainnet/Polygon gas volatility */
+const GAS_LIMIT_BUFFER = 200_000n;
+
 // Convert USD to VIDA token units (assuming 18 decimals like standard ERC-20)
 // 1 VIDA = $980 USD, so 5 VIDA = $4900 total
 const VIDA_DECIMALS = 18;
@@ -105,16 +108,30 @@ export async function mintVidaCap(deviceId, recipientAddress = null) {
       totalVIDA: VIDA_CAP.total
     });
 
+    // Estimate gas and add buffer for mainnet/Polygon volatility
+    let gasLimit;
+    try {
+      const estimated = await vidaContract.mintSovereignCap.estimateGas(
+        recipient,
+        spendableUnits,
+        lockedUnits
+      );
+      gasLimit = estimated + GAS_LIMIT_BUFFER;
+    } catch {
+      gasLimit = 500_000n; // fallback
+    }
+
     // Call smart contract mintSovereignCap function
     const tx = await vidaContract.mintSovereignCap(
       recipient,
       spendableUnits,
-      lockedUnits
+      lockedUnits,
+      { gasLimit }
     );
 
     console.log('VIDA minting transaction sent:', tx.hash);
 
-    // Wait for transaction confirmation
+    // Wait for transaction confirmation (UI shows "Transacting on Mainnet..." during this)
     const receipt = await tx.wait();
 
     if (receipt.status === 1) {

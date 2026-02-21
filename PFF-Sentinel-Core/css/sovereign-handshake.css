@@ -31,11 +31,9 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 10;
-  pointer-events: none;
-}
-
-.scan-overlay > * {
-  pointer-events: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1rem 0;
 }
 
 /* Fabric animation layer — glowing blue fabric pulsing with heartbeat */
@@ -254,6 +252,38 @@ body {
   background: rgba(239, 68, 68, 0.2);
   border: 1px solid rgba(239, 68, 68, 0.5);
   color: #fca5a5;
+}
+
+/* Mainnet tx: spinner while waiting for confirmation */
+.result--spinner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.result--spinner::before {
+  content: '';
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid rgba(14, 165, 233, 0.4);
+  border-top-color: var(--glow-cyan);
+  border-radius: 50%;
+  animation: result-spin 0.8s linear infinite;
+}
+@keyframes result-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Success: celebratory pulse after VIDA minted */
+.result--celebrate {
+  animation: result-celebrate 0.6s ease-out;
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.5);
+}
+@keyframes result-celebrate {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.02); }
+  50% { transform: scale(0.99); }
+  75% { transform: scale(1.01); }
+  100% { transform: scale(1); }
 }
 
 /* Device binding notice */
