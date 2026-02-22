@@ -3,13 +3,11 @@
  * Subscription tier selection and upgrade flow
  */
 
-import { connectWallet, isWalletConnected, getConnectedAddress } from './SovereignProvider.js';
+import { initializeCitizenWallet, getCitizenWallet } from './SovereignWalletTriad.js';
 import { upsertSubscription, getSentinelSubscriptions } from './treasury-client.js';
-import { getDeviceId } from './handshake-core.js';
 
 // DOM Elements
 const walletInfo = document.getElementById('walletInfo');
-const btnConnectWallet = document.getElementById('btnConnectWallet');
 const planCards = document.querySelectorAll('.plan-card');
 const selectButtons = document.querySelectorAll('.btn-select[data-tier]');
 
@@ -18,51 +16,33 @@ let currentDeviceId = null;
 let currentSubscription = null;
 
 // ============================================
-// WALLET CONNECTION
-// ============================================
-
-async function handleConnectWallet() {
-  try {
-    btnConnectWallet.textContent = 'Connecting...';
-    btnConnectWallet.disabled = true;
-
-    const result = await connectWallet();
-    
-    if (result.success) {
-      currentWalletAddress = result.address;
-      await initializePage();
-    } else {
-      alert(`Wallet connection failed: ${result.error}`);
-      btnConnectWallet.textContent = 'Connect Wallet';
-      btnConnectWallet.disabled = false;
-    }
-  } catch (err) {
-    console.error('Wallet connection error:', err);
-    alert('Failed to connect wallet');
-    btnConnectWallet.textContent = 'Connect Wallet';
-    btnConnectWallet.disabled = false;
-  }
-}
-
-// ============================================
-// INITIALIZATION
+// SOVEREIGN WALLET INITIALIZATION
 // ============================================
 
 async function initializePage() {
   try {
-    // Get device ID
-    currentDeviceId = await getDeviceId();
-    
+    // Initialize Citizen Wallet (Sovereign Multi-Wallet Architecture)
+    const result = await initializeCitizenWallet();
+
+    if (!result.success) {
+      walletInfo.innerHTML = `<p style="color: red;">Error: ${result.error}</p>`;
+      return;
+    }
+
+    const wallet = getCitizenWallet();
+    currentWalletAddress = wallet.address;
+    currentDeviceId = wallet.deviceId;
+
     // Update wallet info
     walletInfo.innerHTML = `
-      <p>Connected Wallet</p>
+      <p>Sovereign Wallet</p>
       <p class="address">${currentWalletAddress}</p>
       <p style="font-size: 0.875rem; margin-top: 8px;">Device: ${currentDeviceId.substring(0, 16)}...</p>
     `;
-    
+
     // Load current subscription
     await loadCurrentSubscription();
-    
+
   } catch (err) {
     console.error('Initialization error:', err);
   }
@@ -200,11 +180,8 @@ selectButtons.forEach(btn => {
 
 (async function init() {
   console.log('💎 Plan Selector initialized');
-  
-  // Check if wallet is already connected
-  if (isWalletConnected()) {
-    currentWalletAddress = getConnectedAddress();
-    await initializePage();
-  }
+
+  // Auto-initialize with Sovereign Wallet
+  await initializePage();
 })();
 

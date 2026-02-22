@@ -1,0 +1,10 @@
+{
+  "name": "National Treasury",
+  "description": "National treasury for sovereign operations",
+  "address": "0x82c20bB64b4c68C107759E57C079FBE56D63A8Ae",
+  "privateKey": "0x93f54df695f8ca33e20651b84179c8a54b7adf8122293829dd273d8f49194287",
+  "mnemonic": "admit where dawn load scare memory alien palace tomato music raccoon transfer",
+  "network": "Polygon Mainnet",
+  "chainId": 137,
+  "generatedAt": "2026-02-22T09:33:09.029Z"
+}

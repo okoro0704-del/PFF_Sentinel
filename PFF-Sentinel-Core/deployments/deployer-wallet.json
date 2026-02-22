@@ -1,0 +1,10 @@
+{
+  "name": "Deployer Wallet",
+  "description": "Temporary wallet for deploying contracts (needs MATIC for gas)",
+  "address": "0xd3d902B0eD83cE4EbE0A6e8dAA2D18951c2ACe1B",
+  "privateKey": "0xa65295f37ae964c96e517a4641d5a9ae144dcf444572ec37b66103968b7b56d1",
+  "mnemonic": "together credit rather direct hood update ginger exchange cotton begin response winner",
+  "network": "Polygon Mainnet",
+  "chainId": 137,
+  "generatedAt": "2026-02-22T09:33:08.998Z"
+}

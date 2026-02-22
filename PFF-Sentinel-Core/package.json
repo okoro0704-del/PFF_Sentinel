@@ -10,11 +10,27 @@
     "process-monitor": "node services/process-monitor.js"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.1.0",
+    "@nomicfoundation/hardhat-ethers": "^4.0.4",
+    "@nomicfoundation/hardhat-network-helpers": "^3.0.3",
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@nomicfoundation/hardhat-verify": "^3.0.10",
+    "@openzeppelin/contracts": "^5.4.0",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
+    "@types/chai": "^5.2.3",
+    "@types/mocha": "^10.0.10",
+    "chai": "^6.2.2",
+    "dotenv": "^17.3.1",
+    "ethers": "^6.16.0",
+    "hardhat": "^3.1.9",
+    "hardhat-gas-reporter": "^2.3.0",
+    "solidity-coverage": "^0.8.17",
+    "typechain": "^8.3.2",
     "vite": "^5.0.0"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.94.1",
-    "chart.js": "^4.5.1",
-    "ethers": "^6.16.0"
+    "chart.js": "^4.5.1"
   }
 }

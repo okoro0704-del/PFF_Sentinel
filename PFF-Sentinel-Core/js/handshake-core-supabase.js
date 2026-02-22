@@ -11,6 +11,7 @@ import { isDeviceBound, getDeviceUUID } from './hardware-sync.js';
 import { getCurrentLocation, verifyLocationMatch, getLocationStatus } from './location-layer.js';
 import { getProfile, updateBiometricHashes, markFullyVerified } from './supabase-client.js';
 import { logConsent, logAccessAttempt } from './consent-log-stream.js';
+import { autoVitalizeOnVerification } from './vitalization-client.js';
 
 const TEMPLATE_STORAGE_KEY = 'pff_absolute_truth_template'; // Fallback only
 const COHESION_WINDOW_MS = 1500;
@@ -199,10 +200,53 @@ export async function verifyCohesion(options = {}) {
   } else {
     await logAccessAttempt('Access denied: cohesion mismatch', { success: false, reason: 'MISMATCH', faceOk, fingerOk }, deviceId);
   }
-  
-  // If fully verified, mark in Supabase. Minting is done by app after audit + origin check (Channels 2–4).
+
+  // If fully verified, mark in Supabase and trigger Vitalization
   if (ok) {
     await markFullyVerified(deviceId);
+
+    // 🛡️ VITALIZATION: Request Sentinel authorization for citizenship
+    console.log('🛡️ Four-Pillar verification complete. Requesting Vitalization from Sentinel...');
+
+    try {
+      const vitalizationResult = await autoVitalizeOnVerification();
+
+      if (vitalizationResult.success) {
+        console.log('✅ VITALIZATION SUCCESSFUL!');
+        console.log('🎉 5 VIDA CAP received:', vitalizationResult.vidaCap);
+        console.log('📜 Vitalization Proof ID:', vitalizationResult.vitalizationProof?.vitalizationId);
+        console.log('🔐 Sentinel Signature:', vitalizationResult.vitalizationProof?.sentinelSignature?.slice(0, 20) + '...');
+
+        // Log vitalization success
+        await logConsent('Vitalization successful', {
+          vitalizationId: vitalizationResult.vitalizationProof?.vitalizationId,
+          vidaCap: vitalizationResult.vidaCap
+        }, deviceId);
+      } else if (vitalizationResult.alreadyVitalized) {
+        console.log('ℹ️ Already vitalized. Skipping...');
+      } else {
+        console.warn('⚠️ Vitalization failed:', vitalizationResult.error);
+        console.warn('Four-Pillar verification succeeded, but Vitalization could not be completed.');
+        console.warn('You may need to manually request Vitalization later.');
+
+        // Log vitalization failure (non-critical)
+        await logAccessAttempt('Vitalization failed (non-critical)', {
+          success: false,
+          reason: 'VITALIZATION_FAILED',
+          error: vitalizationResult.error
+        }, deviceId);
+      }
+    } catch (vitalizationError) {
+      console.error('❌ Vitalization error:', vitalizationError);
+      console.warn('Four-Pillar verification succeeded, but Vitalization encountered an error.');
+
+      // Log vitalization error (non-critical)
+      await logAccessAttempt('Vitalization error (non-critical)', {
+        success: false,
+        reason: 'VITALIZATION_ERROR',
+        error: vitalizationError.message
+      }, deviceId);
+    }
   }
 
   return {

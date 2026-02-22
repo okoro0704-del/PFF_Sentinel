@@ -1,0 +1,10 @@
+{
+  "name": "Foundation Vault",
+  "description": "Foundation treasury for protocol development",
+  "address": "0x4f8DDdaC0FF49D562F90827CC59154Ca3e3Ab507",
+  "privateKey": "0x86551ac623a74684031ed83166f23a22b7382a06e86fcc08e6dad42d48076938",
+  "mnemonic": "enroll float behind cruise scene supply cliff length margin modify sick rookie",
+  "network": "Polygon Mainnet",
+  "chainId": 137,
+  "generatedAt": "2026-02-22T09:33:09.018Z"
+}

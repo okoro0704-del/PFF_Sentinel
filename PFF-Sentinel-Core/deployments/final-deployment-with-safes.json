@@ -1,0 +1,110 @@
+{
+  "deploymentDate": "2026-02-22T11:00:00.000Z",
+  "network": "Polygon Mainnet",
+  "chainId": 137,
+  "deploymentMethod": "Remix IDE + Gnosis Safe",
+  "status": "PRODUCTION READY",
+  
+  "contracts": {
+    "vidaToken": {
+      "name": "VIDA Token",
+      "symbol": "VIDA",
+      "address": "0xc226fFb538b6f80F05d5F0Ee0758E5D85a42DE0C",
+      "owner": "0xBaF30D2fe8F8fb41F3053Ce68C4619A283B60211",
+      "ownerType": "Gnosis Safe (Sentinel Vault)",
+      "polygonscan": "https://polygonscan.com/address/0xc226fFb538b6f80F05d5F0Ee0758E5D85a42DE0C",
+      "compiler": "0.8.20",
+      "optimization": true
+    },
+    
+    "ngnVidaToken": {
+      "name": "ngnVIDA",
+      "symbol": "ngnVIDA",
+      "address": "0xe814561AdB492f8ff3019194337A17E9cba9fEFd",
+      "owner": "0xBaF30D2fe8F8fb41F3053Ce68C4619A283B60211",
+      "ownerType": "Gnosis Safe (Sentinel Vault)",
+      "polygonscan": "https://polygonscan.com/address/0xe814561AdB492f8ff3019194337A17E9cba9fEFd",
+      "compiler": "0.8.20",
+      "optimization": true
+    }
+  },
+  
+  "gnosisSafes": {
+    "sentinelVault": {
+      "name": "PFF Sentinel Vault",
+      "address": "0xBaF30D2fe8F8fb41F3053Ce68C4619A283B60211",
+      "purpose": "Admin operations, mints VIDA tokens, signs Vitalization proofs",
+      "owns": ["VIDA Token", "ngnVIDA Token"],
+      "receives": "$100 per Vitalization (from Foundation)",
+      "signers": 1,
+      "threshold": "1 of 1",
+      "safeUrl": "https://app.safe.global/home?safe=matic:0xBaF30D2fe8F8fb41F3053Ce68C4619A283B60211"
+    },
+    
+    "nationalTreasury": {
+      "name": "PFF National Treasury",
+      "address": "0x4c81E768f4B201bCd7E924f671ABA1B162786b48",
+      "purpose": "National sovereign reserves",
+      "receives": "5 VIDA CAP per Vitalization",
+      "signers": 1,
+      "threshold": "1 of 1",
+      "safeUrl": "https://app.safe.global/home?safe=matic:0x4c81E768f4B201bCd7E924f671ABA1B162786b48"
+    },
+    
+    "foundationVault": {
+      "name": "PFF Foundation Vault",
+      "address": "0xDD8046422Bbeba12FD47DE854639abF7FB6E0858",
+      "purpose": "Protocol development fund",
+      "receives": "1 VIDA CAP per Vitalization",
+      "sends": "$100 to Sentinel per Vitalization",
+      "signers": 1,
+      "threshold": "1 of 1",
+      "safeUrl": "https://app.safe.global/home?safe=matic:0xDD8046422Bbeba12FD47DE854639abF7FB6E0858"
+    }
+  },
+  
+  "vitalizationDistribution": {
+    "description": "Multi-mint system - every Vitalization mints to 3 recipients",
+    "perVitalization": {
+      "userWallet": {
+        "amount": "5 VIDA CAP",
+        "breakdown": "$900 spendable + $4000 locked"
+      },
+      "nationalTreasury": {
+        "amount": "5 VIDA CAP",
+        "purpose": "Sovereign reserves"
+      },
+      "foundationVault": {
+        "amount": "1 VIDA CAP",
+        "purpose": "Protocol development",
+        "note": "Sends $100 to Sentinel for operations"
+      },
+      "sentinelVault": {
+        "amount": "$100",
+        "source": "Transferred from Foundation",
+        "purpose": "Operational costs"
+      }
+    },
+    "totalMintedPerVitalization": "11 VIDA CAP",
+    "implementation": "TO BE IMPLEMENTED IN VITALIZATION CODE"
+  },
+  
+  "nextSteps": [
+    "Update Vitalization backend to implement multi-mint system",
+    "Test multi-mint flow on testnet or with small amounts",
+    "Update Netlify environment variables",
+    "Add more signers to Gnosis Safes before production launch",
+    "Verify contracts on Polygonscan (optional)",
+    "Deploy to production"
+  ],
+  
+  "oldDeployment": {
+    "note": "Previous deployment deprecated",
+    "oldVidaToken": "0x0a2A95FD601e806bffEc345Fd732644180A47932",
+    "oldNgnVidaToken": "0xd815F4B251e507a2053D478E34016758f2352a49",
+    "oldSentinelEOA": "0x29437920234Bce9Cb1EBc00c800771d0DB6400A0",
+    "oldFoundationEOA": "0x4f8DDdaC0FF49D562F90827CC59154Ca3e3Ab507",
+    "oldTreasuryEOA": "0x82c20bB64b4c68C107759E57C079FBE56D63A8Ae"
+  }
+}
+

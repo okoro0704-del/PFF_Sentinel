@@ -1,0 +1,16 @@
+{
+  "contractName": "ngnVIDA Token",
+  "address": "0xd815F4B251e507a2053D478E34016758f2352a49",
+  "deployer": "0xd3d902B0eD83cE4EbE0A6e8dAA2D18951c2ACe1B",
+  "network": "Polygon Mainnet",
+  "chainId": 137,
+  "deployedAt": "2026-02-22T10:00:00.000Z",
+  "deploymentMethod": "Remix IDE",
+  "compiler": "0.8.20",
+  "optimization": true,
+  "status": "deployed",
+  "verified": false,
+  "owner": "0xd3d902B0eD83cE4EbE0A6e8dAA2D18951c2ACe1B",
+  "notes": "Nigerian Naira-pegged VIDA token deployed via Remix IDE"
+}
+

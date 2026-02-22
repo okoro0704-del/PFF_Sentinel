@@ -115,11 +115,9 @@ const VIDA_TOKEN_ABI = [
 ];
 
 let provider = null;
-let signer = null;
 let vidaContract = null;
 let dllrContract = null;
 let usdtContract = null;
-let connectedAddress = null;
 
 /**
  * Initialize provider (read-only) — RSK or Polygon based on ACTIVE_CHAIN
@@ -145,104 +143,22 @@ export function getProvider() {
   return provider || initProvider();
 }
 
-/**
- * Connect wallet (MetaMask or other Web3 wallet)
- * @returns {Promise<{success: boolean, address?: string, error?: any}>}
- */
-export async function connectWallet() {
-  try {
-    if (!window.ethereum) {
-      return { 
-        success: false, 
-        error: 'No Web3 wallet detected. Please install MetaMask.' 
-      };
-    }
-
-    // Request account access
-    const accounts = await window.ethereum.request({ 
-      method: 'eth_requestAccounts' 
-    });
-
-    if (!accounts || accounts.length === 0) {
-      return { success: false, error: 'No accounts found' };
-    }
-
-    // Create browser provider and signer
-    const browserProvider = new ethers.BrowserProvider(window.ethereum);
-    signer = await browserProvider.getSigner();
-    connectedAddress = await signer.getAddress();
-
-    // Check if connected to correct network
-    const networks = CHAINS[ACTIVE_CHAIN] || RSK_NETWORKS;
-    const expectedNetwork = networks[ACTIVE_NETWORK] || networks.testnet;
-    const expectedChainId = expectedNetwork.chainId;
-
-    if (Number(network.chainId) !== expectedChainId) {
-      try {
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: `0x${expectedChainId.toString(16)}` }]
-        });
-      } catch (switchError) {
-        if (switchError.code === 4902) {
-          await addEthereumNetwork(expectedNetwork);
-        } else {
-          throw switchError;
-        }
-      }
-    }
-
-    // Initialize token contracts
-    vidaContract = new ethers.Contract(VIDA_TOKEN_ADDRESS, VIDA_TOKEN_ABI, signer);
-    dllrContract = new ethers.Contract(DLLR_TOKEN_ADDRESS, ERC20_ABI, signer);
-    usdtContract = new ethers.Contract(USDT_TOKEN_ADDRESS, ERC20_ABI, signer);
-
-    return { success: true, address: connectedAddress };
-  } catch (err) {
-    console.error('Wallet connection error:', err);
-    return { success: false, error: err.message || err };
-  }
-}
+// ============================================
+// EXTERNAL WALLET FUNCTIONS REMOVED
+// PFF uses internal Sovereign Wallets only
+// See SovereignWalletTriad.js for wallet management
+// ============================================
 
 /**
- * Add network (RSK or Polygon) to MetaMask
- */
-async function addEthereumNetwork(network) {
-  const isPolygon = network.chainId === 137 || network.chainId === 80001;
-  await window.ethereum.request({
-    method: 'wallet_addEthereumChain',
-    params: [{
-      chainId: `0x${network.chainId.toString(16)}`,
-      chainName: network.name,
-      nativeCurrency: isPolygon ? { name: 'MATIC', symbol: 'MATIC', decimals: 18 } : { name: 'RBTC', symbol: 'RBTC', decimals: 18 },
-      rpcUrls: [network.rpcUrl],
-      blockExplorerUrls: [network.explorerUrl]
-    }]
-  });
-}
-
-/**
- * Get connected wallet address
- * @returns {string|null}
- */
-export function getConnectedAddress() {
-  return connectedAddress;
-}
-
-/**
- * Get VIDA token contract instance
+ * Get VIDA token contract instance (read-only)
  * @returns {ethers.Contract|null}
  */
 export function getVidaContract() {
+  if (!vidaContract) {
+    const p = getProvider();
+    vidaContract = new ethers.Contract(VIDA_TOKEN_ADDRESS, VIDA_TOKEN_ABI, p);
+  }
   return vidaContract;
-}
-
-/**
- * Check if wallet is connected
- * @returns {boolean}
- */
-export function isWalletConnected() {
-  return !!connectedAddress && !!signer;
 }
 
 /**
@@ -255,18 +171,26 @@ export function getNetworkInfo() {
 }
 
 /**
- * Get DLLR token contract instance
+ * Get DLLR token contract instance (read-only)
  * @returns {ethers.Contract|null}
  */
 export function getDllrContract() {
+  if (!dllrContract) {
+    const p = getProvider();
+    dllrContract = new ethers.Contract(DLLR_TOKEN_ADDRESS, ERC20_ABI, p);
+  }
   return dllrContract;
 }
 
 /**
- * Get USDT token contract instance
+ * Get USDT token contract instance (read-only)
  * @returns {ethers.Contract|null}
  */
 export function getUsdtContract() {
+  if (!usdtContract) {
+    const p = getProvider();
+    usdtContract = new ethers.Contract(USDT_TOKEN_ADDRESS, ERC20_ABI, p);
+  }
   return usdtContract;
 }
 

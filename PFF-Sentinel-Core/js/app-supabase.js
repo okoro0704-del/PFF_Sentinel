@@ -27,7 +27,7 @@ import {
 import { setShadowMode } from './shadow-state.js';
 import { showShadowUI, hideShadowUI, applyShadowStateIfActive } from './shadow-ui.js';
 import { updateFourPillarAnchors } from './supabase-client.js';
-import { connectWallet, isWalletConnected, getConnectedAddress } from './SovereignProvider.js';
+import { initializeCitizenWallet } from './SovereignWalletTriad.js';
 import { startMintingStatusListener, onVaultSecured } from './minting-status-bridge.js';
 import { logConsent } from './consent-log-stream.js';
 import { fetchChallenge, getStoredChallenge, submitAudit, clearChallenge } from './sovryn-audit-client.js';
@@ -336,34 +336,17 @@ async function bindDevice() {
   }
 }
 
-/**
- * Connect Web3 wallet for VIDA token
- */
-async function connectWeb3Wallet() {
-  try {
-    showResult('🔗 Connecting wallet...', false);
-    const result = await connectWallet();
-    if (result.success) {
-      showResult(`✅ Wallet connected: ${result.address.substring(0, 10)}...`, true);
-    } else {
-      showResult(`❌ Wallet connection failed: ${result.error}`, false);
-    }
-  } catch (err) {
-    console.error('Wallet connection error:', err);
-    showResult('❌ Wallet error: ' + err.message, false);
-  }
-}
+// ============================================
+// EXTERNAL WALLET FUNCTIONS REMOVED
+// PFF uses internal Sovereign Wallets only
+// See SovereignWalletTriad.js for wallet management
+// ============================================
 
 // Event listeners
 btnStart.addEventListener('click', startScan);
 btnVerify.addEventListener('click', verify);
 btnEnroll.addEventListener('click', enroll);
 btnBind.addEventListener('click', bindDevice);
-
-const btnConnectWallet = document.getElementById('btnConnectWallet');
-if (btnConnectWallet) {
-  btnConnectWallet.addEventListener('click', connectWeb3Wallet);
-}
 
 // Initialize app
 (async function init() {
@@ -400,11 +383,9 @@ if (btnConnectWallet) {
   const breaches = await listBreachAttempts();
   console.log(`VLT: ${breaches.length} breach attempts logged`);
 
-  // Prompt wallet connection
-  if (!isWalletConnected()) {
-    console.log('💰 Web3 wallet not connected. Click to connect for VIDA minting.');
-    // Add a button or auto-prompt here if desired
-  }
+  // Initialize Sovereign Wallet
+  console.log('🏛️ Initializing Sovereign Wallet...');
+  await initializeCitizenWallet();
 
   // Status bridge: when minting_status == COMPLETED, show Vault Secured on UI
   startMintingStatusListener();

@@ -5,9 +5,7 @@
 
 import Chart from 'chart.js/auto';
 import { ethers } from 'ethers';
-import { getDeviceId } from './handshake-core.js';
-import { getProfile } from './supabase-client.js';
-import { connectWallet, getVidaContract, isWalletConnected, getConnectedAddress } from './SovereignProvider.js';
+import { initializeCitizenWallet, getCitizenWallet, getWalletBalances } from './SovereignWalletTriad.js';
 import { NATIONAL_BLOCK_SINK } from './mainnet-destinations.js';
 import {
   getSentinelSubscriptions,
@@ -24,7 +22,6 @@ const vidaBalanceEl = document.getElementById('vidaBalance');
 const ngnVidaBalanceEl = document.getElementById('ngnVidaBalance');
 const dllrBalanceEl = document.getElementById('dllrBalance');
 const usdtBalanceEl = document.getElementById('usdtBalance');
-const btnConnectWallet = document.getElementById('btnConnectWallet');
 const btnClaimEarnings = document.getElementById('btnClaimEarnings');
 
 const nationalReserveVidaLockedEl = document.getElementById('nationalReserveVidaLocked');
@@ -52,29 +49,21 @@ let currentWalletAddress = null;
 let pendingEarningsData = [];
 
 // ============================================
-// INTERNAL WALLET INITIALIZATION
+// SOVEREIGN WALLET INITIALIZATION
 // ============================================
 
 async function initializeDashboard() {
   try {
-    // Get device ID (PFF internal wallet identifier)
-    const deviceId = await getDeviceId();
+    // Initialize Citizen Wallet (Sovereign Multi-Wallet Architecture)
+    const result = await initializeCitizenWallet();
 
-    if (!deviceId) {
-      walletAddressEl.textContent = 'Error: Device ID not found';
+    if (!result.success) {
+      walletAddressEl.textContent = `Error: ${result.error}`;
       return;
     }
 
-    // Get profile from database
-    const profile = await getProfile(deviceId);
-
-    if (!profile) {
-      walletAddressEl.textContent = 'Error: Profile not found';
-      return;
-    }
-
-    // Use internal wallet address
-    currentWalletAddress = profile.wallet_address || `pff-wallet-${deviceId}`;
+    const wallet = getCitizenWallet();
+    currentWalletAddress = wallet.address;
     walletAddressEl.textContent = `Wallet: ${currentWalletAddress}`;
 
     // Load dashboard data

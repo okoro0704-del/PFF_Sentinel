@@ -1,0 +1,10 @@
+{
+  "name": "Sentinel Vault",
+  "description": "Admin wallet for minting VIDA and signing Vitalization proofs",
+  "address": "0x29437920234Bce9Cb1EBc00c800771d0DB6400A0",
+  "privateKey": "0x773e8d0661b61e5c24da75d1f3cb854ec0dcbce8e4af3ad03b61043279a989e8",
+  "mnemonic": "unique budget intact coconut scrap bargain lemon timber tip already devote bacon",
+  "network": "Polygon Mainnet",
+  "chainId": 137,
+  "generatedAt": "2026-02-22T09:33:09.010Z"
+}

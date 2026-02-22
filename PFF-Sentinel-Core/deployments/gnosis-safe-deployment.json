@@ -1,0 +1,79 @@
+{
+  "deploymentDate": "2026-02-22T10:30:00.000Z",
+  "network": "Polygon Mainnet",
+  "chainId": 137,
+  "deploymentMethod": "Gnosis Safe Web Interface",
+  "deployer": "0xd3d902B0eD83cE4EbE0A6e8dAA2D18951c2ACe1B",
+  
+  "safes": {
+    "sentinelVault": {
+      "name": "PFF Sentinel Vault",
+      "address": "0xBaF30D2fe8F8fb41F3053Ce68C4619A283B60211",
+      "purpose": "Admin operations, mints VIDA tokens, signs Vitalization proofs",
+      "signers": [
+        "0xd3d902B0eD83cE4EbE0A6e8dAA2D18951c2ACe1B"
+      ],
+      "threshold": "1 of 1",
+      "canAddSignersLater": true,
+      "oldEOA": "0x29437920234Bce9Cb1EBc00c800771d0DB6400A0",
+      "status": "active"
+    },
+    
+    "nationalTreasury": {
+      "name": "PFF National Treasury",
+      "address": "0x4c81E768f4B201bCd7E924f671ABA1B162786b48",
+      "purpose": "Receives 5 VIDA CAP per Vitalization, national sovereign reserves",
+      "signers": [
+        "0xd3d902B0eD83cE4EbE0A6e8dAA2D18951c2ACe1B"
+      ],
+      "threshold": "1 of 1",
+      "canAddSignersLater": true,
+      "oldEOA": "0x82c20bB64b4c68C107759E57C079FBE56D63A8Ae",
+      "status": "active",
+      "expectedAccumulation": "5 VIDA CAP × number of citizens"
+    },
+    
+    "foundationVault": {
+      "name": "PFF Foundation Vault",
+      "address": "0xDD8046422Bbeba12FD47DE854639abF7FB6E0858",
+      "purpose": "Receives 1 VIDA CAP per Vitalization, sends $100 to Sentinel for operations",
+      "signers": [
+        "0xd3d902B0eD83cE4EbE0A6e8dAA2D18951c2ACe1B"
+      ],
+      "threshold": "1 of 1",
+      "canAddSignersLater": true,
+      "oldEOA": "0x4f8DDdaC0FF49D562F90827CC59154Ca3e3Ab507",
+      "status": "active",
+      "expectedAccumulation": "~$800 × number of citizens (1 VIDA CAP - $100 transfer)"
+    }
+  },
+  
+  "vitalizationDistribution": {
+    "perVitalization": {
+      "userWallet": "5 VIDA CAP ($900 spendable + $4000 locked)",
+      "nationalTreasury": "5 VIDA CAP (sovereign reserves)",
+      "foundationVault": "1 VIDA CAP (protocol development)",
+      "sentinelVault": "$100 (transferred from Foundation for operations)"
+    },
+    "totalMintedPerVitalization": "11 VIDA CAP",
+    "implementation": "Multi-mint system - to be implemented in Vitalization code"
+  },
+  
+  "nextSteps": [
+    "Transfer VIDA token ownership from Deployer to Sentinel Safe",
+    "Transfer ngnVIDA token ownership from Deployer to Sentinel Safe",
+    "Update Vitalization code to implement multi-mint system",
+    "Test Vitalization flow with all 3 mints",
+    "Add more signers to Safes when needed",
+    "Update Netlify environment variables"
+  ],
+  
+  "securityNotes": [
+    "All 3 Safes currently have single signer (you)",
+    "Can add more signers anytime via Gnosis Safe web interface",
+    "Recommended: Add 2-3 more signers before production launch",
+    "Safes are upgradeable - can change threshold and signers",
+    "Old EOA wallets can be deprecated after ownership transfer"
+  ]
+}
+

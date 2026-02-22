@@ -25,7 +25,13 @@ CREATE TABLE IF NOT EXISTS profiles (
   minting_status TEXT DEFAULT 'PENDING' CHECK (minting_status IN ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'FAILED')),
   vida_balance_spendable NUMERIC DEFAULT 0,
   vida_balance_locked NUMERIC DEFAULT 0,
-  
+
+  -- Vitalization (Sentinel Authorization)
+  vitalization_signature TEXT,
+  vitalization_id TEXT UNIQUE,
+  vitalized_at TIMESTAMPTZ,
+  vitalized_by TEXT,
+
   -- Wallet Address
   wallet_address TEXT,
   
