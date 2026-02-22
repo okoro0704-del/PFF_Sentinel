@@ -1,6 +1,6 @@
 [build]
-  # Build command - install only what we need for Netlify build
-  command = "npm install --legacy-peer-deps vite @supabase/supabase-js chart.js && npm run build"
+  # Build command - use legacy-peer-deps to bypass Hardhat conflicts
+  command = "npm install --legacy-peer-deps && npm run build"
 
   # Publish directory (Vite default output)
   publish = "dist"
@@ -8,12 +8,11 @@
   # Functions directory
   functions = "netlify/functions"
 
-  # Ignore package.json dependencies to avoid Hardhat conflicts
-  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ."
-
 [build.environment]
   # Use Node.js 18 (compatible with both Vite and ethers.js)
   NODE_VERSION = "18"
+  # Use legacy peer deps to avoid Hardhat conflicts
+  NPM_FLAGS = "--legacy-peer-deps"
 
 # Redirect all routes to index.html for SPA routing
 [[redirects]]
