@@ -1,0 +1,30 @@
+[build]
+  # Build command for Vite (install only production deps, then install vite separately)
+  command = "npm install --production && npm install vite && npm run build"
+
+  # Publish directory (Vite default output)
+  publish = "dist"
+
+  # Functions directory
+  functions = "netlify/functions"
+
+[build.environment]
+  # Use Node.js 18 (compatible with both Vite and ethers.js)
+  NODE_VERSION = "18"
+  # Skip installing devDependencies to avoid Hardhat
+  NPM_FLAGS = "--production"
+
+# Redirect all routes to index.html for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
