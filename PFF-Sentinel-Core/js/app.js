@@ -93,8 +93,12 @@ async function startScan() {
     setStatus('fingerStatus', 'Touch sensor when ready', true);
 
     try {
+      setStatus('heartStatus', 'Connecting to heart rate sensor...', true);
       await connectHeartRateSensor();
-    } catch (_) {}
+      setStatus('heartStatus', 'Connected', true);
+    } catch (_) {
+      setStatus('heartStatus', 'Using fallback (no sensor)', true);
+    }
     startFabricAnimation(fabricLayer, () => getLastBpm());
     stopPulse = startPulseDetection(getLastBpm(), (phase) => {
       setPulsePhase(phase);
@@ -103,11 +107,19 @@ async function startScan() {
 
     btnStart.textContent = 'Stop Scan';
   } catch (e) {
-    showResult('Could not start: ' + e.message, false);
+    let errorMessage = 'Could not start scan: ';
+    if (e.message.includes('camera') || e.message.includes('getUserMedia')) {
+      errorMessage += 'Camera access denied. Please grant camera permissions in your browser settings.';
+    } else if (e.message.includes('NotFoundError')) {
+      errorMessage += 'No camera found. Please connect a camera and try again.';
+    } else {
+      errorMessage += e.message;
+    }
+    showResult(errorMessage, false);
     setStatus('faceStatus', 'Error', false);
-    
     setStatus('fingerStatus', 'Error', false);
     scanActive = false;
+    btnStart.textContent = 'Start Scan';
   }
 }
 
@@ -159,7 +171,17 @@ async function runVerify() {
       showResult(`Verification failed: ${out.reason || 'Mismatch'}. ${out.details?.message || ''}`, false);
     }
   } catch (e) {
-    showResult('Verify error: ' + e.message, false);
+    let errorMessage = 'Verification error: ';
+    if (e.message.includes('network') || e.message.includes('fetch')) {
+      errorMessage += 'Network connection issue. Please check your internet connection and try again.';
+    } else if (e.message.includes('camera') || e.message.includes('video')) {
+      errorMessage += 'Camera access issue. Please ensure camera permissions are granted.';
+    } else if (e.message.includes('timeout')) {
+      errorMessage += 'Verification timed out. Please try again.';
+    } else {
+      errorMessage += e.message;
+    }
+    showResult(errorMessage, false);
   }
 }
 
@@ -198,7 +220,17 @@ async function runEnroll() {
     storeAbsoluteTruthTemplate({ face, finger, gpsLocation, deviceUUID });
     showResult(`Absolute Truth Template stored. Sovereign Baseline BPM: ${getSovereignBaseline()}. You can now Verify Cohesion.`, true);
   } catch (e) {
-    showResult('Enroll error: ' + e.message, false);
+    let errorMessage = 'Enrollment error: ';
+    if (e.message.includes('camera') || e.message.includes('video')) {
+      errorMessage += 'Camera access issue. Please ensure camera is working and try again.';
+    } else if (e.message.includes('fingerprint') || e.message.includes('WebAuthn')) {
+      errorMessage += 'Fingerprint sensor issue. Please ensure your device supports fingerprint authentication.';
+    } else if (e.message.includes('location') || e.message.includes('GPS')) {
+      errorMessage += 'Location access denied. Please grant location permissions.';
+    } else {
+      errorMessage += e.message;
+    }
+    showResult(errorMessage, false);
   }
 }
 
