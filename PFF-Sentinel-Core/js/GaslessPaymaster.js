@@ -15,7 +15,7 @@ import { SOVEREIGN_CONFIG } from './SovereignWalletTriad.js';
 const PAYMASTER_CONFIG = {
   enabled: import.meta.env.VITE_PAYMASTER_ENABLED === 'true',
   gasSponsorLimit: parseFloat(import.meta.env.VITE_GAS_SPONSOR_LIMIT || '0.01'), // Max POL per transaction
-  maxGasPrice: ethers.parseUnits('1', 'gwei') // Max gas price to sponsor
+  maxGasPrice: ethers.parseUnits(import.meta.env.VITE_MAX_GAS_PRICE_GWEI || '1', 'gwei') // Max gas price to sponsor
 };
 
 // ============================================

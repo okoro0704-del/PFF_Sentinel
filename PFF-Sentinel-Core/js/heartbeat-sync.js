@@ -4,7 +4,7 @@
  */
 
 const BASELINE_STORAGE_KEY = 'pff_sovereign_baseline_bpm';
-const DURESS_THRESHOLD = 1.4;
+const DURESS_THRESHOLD = parseFloat(import.meta.env.VITE_DURESS_THRESHOLD || '1.4');
 
 let heartRateDevice = null;
 let heartRateCharacteristic = null;

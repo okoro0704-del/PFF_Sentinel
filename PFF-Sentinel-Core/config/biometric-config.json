@@ -1,0 +1,10 @@
+{
+  "maxFailedAttempts": 3,
+  "freezeDurationMinutes": 30,
+  "requireAttentionAware": true,
+  "disablePasscodeFallback": true,
+  "requireFaceID": true,
+  "requireFingerprint": true,
+  "notes": "⚙️ Biometric Enforcement Configuration - Override via environment variables: VITE_MAX_FAILED_ATTEMPTS, VITE_FREEZE_DURATION_MINUTES"
+}
+

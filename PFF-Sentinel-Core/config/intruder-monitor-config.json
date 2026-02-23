@@ -1,0 +1,8 @@
+{
+  "checkIntervalMs": 500,
+  "intruderThresholdMs": 2000,
+  "lookAwayTimeoutMs": 30000,
+  "faceMatchTolerance": 0.25,
+  "notes": "⚙️ Intruder Monitor Configuration - Override via environment variables: VITE_INTRUDER_CHECK_MS, VITE_INTRUDER_THRESHOLD_MS, VITE_LOOK_AWAY_MS, VITE_FACE_MATCH_TOLERANCE"
+}
+

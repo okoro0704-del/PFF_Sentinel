@@ -20,8 +20,8 @@ import { debugLog, debugWarn, debugError } from './debug-utils.js';
 // ============================================
 
 const BIOMETRIC_CONFIG = {
-  maxFailedAttempts: 3,
-  freezeDurationMinutes: 30,
+  maxFailedAttempts: parseInt(import.meta.env.VITE_MAX_FAILED_ATTEMPTS || '3'),
+  freezeDurationMinutes: parseInt(import.meta.env.VITE_FREEZE_DURATION_MINUTES || '30'),
   requireAttentionAware: true,
   disablePasscodeFallback: true,
   requireFaceID: true,
