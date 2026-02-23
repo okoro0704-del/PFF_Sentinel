@@ -297,7 +297,8 @@ async function decryptPrivateKey(encryptedKey, deviceId) {
 
 /**
  * Get token balances for Citizen Wallet
- * @returns {Promise<{vida: string, dllr: string, usdt: string}>}
+ * UPDATED: Now fetches from Polygon chain instead of Supabase
+ * @returns {Promise<{vida: string, dllr: string, usdt: string, error?: string}>}
  */
 export async function getWalletBalances() {
   if (!citizenWallet) {
@@ -305,17 +306,36 @@ export async function getWalletBalances() {
   }
 
   try {
-    // Get balances from Supabase profile
-    const profile = await getProfile(citizenWallet.deviceId);
+    // Fetch VIDA balance from Polygon chain
+    const { getVidaBalance } = await import('./MintingProtocol.js');
+    const vidaBalance = await getVidaBalance(citizenWallet.address);
 
+    if (!vidaBalance.success) {
+      // Fallback to Supabase if chain query fails
+      console.warn('⚠️ Chain query failed, falling back to Supabase');
+      const profile = await getProfile(citizenWallet.deviceId);
+
+      return {
+        vida: profile?.data?.vida_balance_spendable || '0',
+        dllr: '0',
+        usdt: '0',
+        error: 'Chain query failed - showing cached balance'
+      };
+    }
+
+    // Return on-chain balance (spendable only for display)
     return {
-      vida: profile?.vida_balance_spendable || '0',
+      vida: vidaBalance.spendable || '0',
+      vidaLocked: vidaBalance.locked || '0',
+      vidaTotal: vidaBalance.total || '0',
       dllr: '0', // TODO: Implement DLLR balance query
       usdt: '0'  // TODO: Implement USDT balance query
     };
   } catch (error) {
     console.error('❌ Failed to get wallet balances:', error);
-    return { vida: '0', dllr: '0', usdt: '0' };
+
+    // Show user-friendly error
+    throw new Error('⚠️ Network Latency: Unable to fetch balances from blockchain. Please check your internet connection.');
   }
 }
 

@@ -1,20 +1,24 @@
 /**
  * PFF Sentinel — Vitalization UI Module
  * Displays Vitalization status and VIDA CAP information in the UI
+ * UPDATED: Now includes on-chain VIDA split verification
  */
 
 import { checkVitalizationStatus } from './vitalization-client.js';
 import { getDeviceId } from './handshake-core.js';
+import { getProfile } from './supabase-client.js';
+import { verifyVitalizationStatus, displaySplitVerification } from './vida-split-verifier.js';
 
 // ============================================
 // UI DISPLAY FUNCTIONS
 // ============================================
 
 /**
- * Display Vitalization status in the UI
+ * Display Vitalization status in the UI with on-chain verification
  * @param {HTMLElement} container - Container element to display status
+ * @param {boolean} verifyOnChain - Whether to verify VIDA split on-chain (default: true)
  */
-export async function displayVitalizationStatus(container) {
+export async function displayVitalizationStatus(container, verifyOnChain = true) {
   if (!container) {
     console.warn('⚠️ Vitalization status container not found');
     return;
@@ -23,11 +27,29 @@ export async function displayVitalizationStatus(container) {
   try {
     const status = await checkVitalizationStatus();
 
+    // If vitalized and verification enabled, check on-chain split
+    let splitVerification = null;
+    if (status.vitalized && verifyOnChain) {
+      const deviceId = await getDeviceId();
+      const profile = await getProfile(deviceId);
+
+      if (profile.success && profile.data) {
+        splitVerification = await verifyVitalizationStatus(profile.data);
+      }
+    }
+
     if (status.vitalized) {
+      // Determine verification status
+      const fullyVerified = !splitVerification || splitVerification.verified;
+      const bgColor = fullyVerified ? '#10b981' : '#f59e0b';
+      const borderColor = fullyVerified ? '#34d399' : '#fbbf24';
+      const statusIcon = fullyVerified ? '✅' : '⚠️';
+      const statusText = fullyVerified ? 'Vitalized Citizen' : 'Vitalized (Pending Verification)';
+
       container.innerHTML = `
         <div class="vitalization-status vitalized" style="
-          background: linear-gradient(135deg, #10b981, #059669);
-          border: 2px solid #34d399;
+          background: linear-gradient(135deg, ${bgColor}, ${bgColor}dd);
+          border: 2px solid ${borderColor};
           border-radius: 12px;
           padding: 20px;
           color: white;
@@ -35,12 +57,17 @@ export async function displayVitalizationStatus(container) {
           box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
         ">
           <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-            <span style="font-size: 36px;">✅</span>
+            <span style="font-size: 36px;">${statusIcon}</span>
             <div>
-              <h3 style="margin: 0; font-size: 20px;">Vitalized Citizen</h3>
+              <h3 style="margin: 0; font-size: 20px;">${statusText}</h3>
               <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 14px;">
                 Authorized by Sentinel on ${new Date(status.vitalizedAt).toLocaleDateString()}
               </p>
+              ${!fullyVerified && splitVerification ? `
+                <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 12px; color: #fef3c7;">
+                  ${splitVerification.reason || 'On-chain verification pending'}
+                </p>
+              ` : ''}
             </div>
           </div>
           
@@ -78,8 +105,18 @@ export async function displayVitalizationStatus(container) {
             <p style="margin: 0; opacity: 0.7;">Vitalization ID:</p>
             <p style="margin: 4px 0 0 0;">${status.vitalizationId}</p>
           </div>
+
+          <div id="split-verification-container"></div>
         </div>
       `;
+
+      // Display split verification if available
+      if (splitVerification && splitVerification.splitDetails) {
+        const splitContainer = container.querySelector('#split-verification-container');
+        if (splitContainer) {
+          displaySplitVerification(splitContainer, splitVerification.splitDetails);
+        }
+      }
     } else {
       container.innerHTML = `
         <div class="vitalization-status not-vitalized" style="

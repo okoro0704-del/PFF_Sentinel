@@ -121,16 +121,27 @@ let usdtContract = null;
 
 /**
  * Initialize provider (read-only) — RSK or Polygon based on ACTIVE_CHAIN
- * @returns {ethers.JsonRpcProvider}
+ * @returns {Promise<ethers.JsonRpcProvider>}
  */
-export function initProvider() {
+export async function initProvider() {
   if (!provider) {
     const networks = CHAINS[ACTIVE_CHAIN] || RSK_NETWORKS;
     const network = networks[ACTIVE_NETWORK] || networks.testnet;
-    provider = new ethers.JsonRpcProvider(network.rpcUrl, {
-      chainId: network.chainId,
-      name: network.name
-    });
+
+    try {
+      provider = new ethers.JsonRpcProvider(network.rpcUrl, {
+        chainId: network.chainId,
+        name: network.name
+      });
+
+      // Test connection
+      await provider.getNetwork();
+      console.log('✅ Connected to', network.name);
+
+    } catch (error) {
+      console.error('❌ Failed to connect to', network.name, error);
+      throw new Error(`⚠️ Network Latency: Unable to connect to ${network.name}. Please check your internet connection.`);
+    }
   }
   return provider;
 }
