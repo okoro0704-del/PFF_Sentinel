@@ -7,6 +7,7 @@ import { supabase } from './supabase-client.js';
 import { getProfile } from './supabase-client.js';
 import { getDeviceId } from './handshake-core.js';
 import { ethers } from 'ethers';
+import { debugLog } from './debug-utils.js';
 
 // Configuration
 const POLYGON_RPC_URLS = [
@@ -32,8 +33,8 @@ const VIDA_ABI = [
  * @returns {Promise<Object>} Audit report
  */
 export async function runSystemAudit() {
-  console.log('🔍 Starting PFF Sentinel System Connectivity Audit...\n');
-  
+  debugLog('🔍 Starting PFF Sentinel System Connectivity Audit...\n');
+
   const report = {
     timestamp: new Date().toISOString(),
     supabase: await auditSupabaseConnection(),
@@ -42,10 +43,10 @@ export async function runSystemAudit() {
     vidaSplit: await auditVidaSplitLogic(),
     errorHandling: await auditErrorHandling()
   };
-  
+
   // Generate summary
   report.summary = generateSummary(report);
-  
+
   return report;
 }
 

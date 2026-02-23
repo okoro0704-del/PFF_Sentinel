@@ -41,19 +41,30 @@ const SOVEREIGN_CONFIG = {
 
   // Contract Addresses (Deployed on Polygon Mainnet)
   contracts: {
-    // VIDA CAP Token (Main token)
+    // ✅ DEPLOYED - VIDA CAP Token (Main sovereign token)
     vida: import.meta.env.VITE_VIDA_TOKEN_ADDRESS || '0xDc6EFba149b47f6F6d77AC0523c51F204964C12E',
 
-    // ngnVIDA Token (National currency)
+    // ✅ DEPLOYED - ngnVIDA Token (Nigerian Naira-pegged token)
     ngnVida: import.meta.env.VITE_NGN_VIDA_ADDRESS || '0x5dD456B88f2be6688E7A04f78471A3868bd06811',
 
-    // Other tokens (if needed)
+    // ⏳ FUTURE FEATURE - DLLR Token (not deployed yet)
+    // Will be deployed in Phase 3 - Dollar-pegged stablecoin
     dllr: import.meta.env.VITE_DLLR_TOKEN_ADDRESS || '0x0000000000000000000000000000000000000000',
+
+    // ⏳ FUTURE FEATURE - USDT Token (not deployed yet)
+    // Will be integrated in Phase 3 - Tether integration
     usdt: import.meta.env.VITE_USDT_TOKEN_ADDRESS || '0x0000000000000000000000000000000000000000',
 
-    // Future contracts (not deployed yet)
+    // ⏳ FUTURE FEATURE - ADRS Contract (Autonomous Dispute Resolution System)
+    // Planned for Phase 4 - On-chain dispute resolution
     adrs: import.meta.env.VITE_ADRS_CONTRACT_ADDRESS || '0x0000000000000000000000000000000000000000',
+
+    // ⏳ FUTURE FEATURE - SSS Contract (Sovereign Savings System)
+    // Planned for Phase 4 - Savings vault with yield
     sss: import.meta.env.VITE_SSS_CONTRACT_ADDRESS || '0x0000000000000000000000000000000000000000',
+
+    // ⏳ FUTURE FEATURE - BPS Contract (Biometric Protection System)
+    // Planned for Phase 5 - Advanced biometric security
     bps: import.meta.env.VITE_BPS_CONTRACT_ADDRESS || '0x0000000000000000000000000000000000000000'
   }
 };
@@ -328,8 +339,8 @@ export async function getWalletBalances() {
       vida: vidaBalance.spendable || '0',
       vidaLocked: vidaBalance.locked || '0',
       vidaTotal: vidaBalance.total || '0',
-      dllr: '0', // TODO: Implement DLLR balance query
-      usdt: '0'  // TODO: Implement USDT balance query
+      dllr: '0', // ⏳ FUTURE FEATURE - DLLR token not deployed yet (Phase 3)
+      usdt: '0'  // ⏳ FUTURE FEATURE - USDT integration not deployed yet (Phase 3)
     };
   } catch (error) {
     console.error('❌ Failed to get wallet balances:', error);

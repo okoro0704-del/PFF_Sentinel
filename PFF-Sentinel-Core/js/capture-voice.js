@@ -1,24 +1,29 @@
 /**
  * Voice Capture Module (Stub)
- * TODO: Implement voice biometric capture for future enhancement
+ * NOTE: Voice biometric capture is a future enhancement
+ * This is a placeholder implementation for build compatibility
  */
+
+import { debugLog } from './debug-utils.js';
 
 let isCapturing = false;
 
 /**
  * Start voice capture
+ * NOTE: Not yet implemented - future feature
  */
 export function startVoiceCapture() {
-  console.log('Voice capture not yet implemented');
+  debugLog('Voice capture not yet implemented (future feature)');
   isCapturing = true;
   return Promise.resolve();
 }
 
 /**
  * Stop voice capture
+ * NOTE: Not yet implemented - future feature
  */
 export function stopVoiceCapture() {
-  console.log('Voice capture stopped');
+  debugLog('Voice capture stopped');
   isCapturing = false;
   return Promise.resolve();
 }

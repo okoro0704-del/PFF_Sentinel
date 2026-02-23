@@ -4,6 +4,8 @@
  * Captures coordinates before biometric scans begin.
  */
 
+import { debugLog, debugWarn, debugError } from './debug-utils.js';
+
 const LOCATION_STORAGE_KEY = 'pff_location_anchor';
 const LOCATION_TIMEOUT_MS = 10000; // 10 seconds max wait for GPS
 
@@ -76,7 +78,7 @@ export function storeLocationAnchor(location) {
   try {
     localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(location));
   } catch (e) {
-    console.error('Failed to store location anchor:', e);
+    debugError('Failed to store location anchor:', e);
   }
 }
 
@@ -126,9 +128,9 @@ export function verifyLocationMatch(current, stored, toleranceMeters = 100) {
 export async function initLocationLayer() {
   try {
     await captureLocation();
-    console.log('GPS Location Anchor: LOCKED');
+    debugLog('GPS Location Anchor: LOCKED');
   } catch (error) {
-    console.warn('GPS Location Anchor: FAILED', error.message);
+    debugWarn('GPS Location Anchor: FAILED', error.message);
     // Don't throw - allow app to continue even if GPS fails
   }
 }
