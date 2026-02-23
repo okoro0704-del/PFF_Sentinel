@@ -83,13 +83,19 @@ async function startScan() {
     faceCanvas.width = 640;
     faceCanvas.height = 480;
 
+    // Wait for face capture to be fully ready before proceeding
     await Promise.all([
       startFaceCapture(faceVideo, faceCanvas),
-      
+
     ]);
 
+    // Validate that video stream is active before continuing
+    if (!faceVideo.srcObject || faceVideo.readyState < 2) {
+      throw new Error('Camera stream not ready');
+    }
+
     setStatus('faceStatus', 'Live', true);
-    
+
     setStatus('fingerStatus', 'Touch sensor when ready', true);
 
     try {
@@ -149,6 +155,15 @@ async function runVerify() {
     showResult('Start Scan first, then click Verify Cohesion.', false);
     return;
   }
+
+  // Validate camera stream is still active
+  if (!faceVideo.srcObject || faceVideo.readyState < 2) {
+    showResult('Camera stream lost. Please restart scan.', false);
+    scanActive = false;
+    btnStart.textContent = 'Start Scan';
+    return;
+  }
+
   resultEl.textContent = 'Verifyingâ€¦';
   resultEl.className = 'result visible';
 
@@ -205,6 +220,15 @@ async function runEnroll() {
     showResult('Start Scan first, then Enroll.', false);
     return;
   }
+
+  // Validate camera stream is still active
+  if (!faceVideo.srcObject || faceVideo.readyState < 2) {
+    showResult('Camera stream lost. Please restart scan.', false);
+    scanActive = false;
+    btnStart.textContent = 'Start Scan';
+    return;
+  }
+
   resultEl.textContent = 'Enrollingâ€¦';
   resultEl.className = 'result visible';
 
@@ -214,7 +238,7 @@ async function runEnroll() {
     const gpsLocation = getCurrentLocation(); const [face, finger] = await Promise.all([
       captureFaceSignals(faceVideo, faceCanvas),
       captureFingerprintSignals(),
-      
+
     ]);
     const deviceUUID = await getDeviceUUID();
     storeAbsoluteTruthTemplate({ face, finger, gpsLocation, deviceUUID });
