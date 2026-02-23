@@ -93,12 +93,12 @@ async function loadWalletBalances() {
       const total = spendable + locked;
 
       vidaBalanceEl.textContent = total.toFixed(2);
-      dllrBalanceEl.textContent = '0.00'; // Placeholder until DLLR integration
-      usdtBalanceEl.textContent = '0.00'; // Placeholder until USDT integration
+      dllrBalanceEl.textContent = 'Coming Soon'; // ⏳ FUTURE FEATURE - Phase 3
+      usdtBalanceEl.textContent = 'Coming Soon'; // ⏳ FUTURE FEATURE - Phase 3
     } else {
       vidaBalanceEl.textContent = '0.00';
-      dllrBalanceEl.textContent = '0.00';
-      usdtBalanceEl.textContent = '0.00';
+      dllrBalanceEl.textContent = 'Coming Soon';
+      usdtBalanceEl.textContent = 'Coming Soon';
     }
     if (ngnVidaBalanceEl && !ngnVidaBalanceEl.dataset.fetched) {
       // ngnVIDA balance is set by loadNationalReserve when wallet is 0x...

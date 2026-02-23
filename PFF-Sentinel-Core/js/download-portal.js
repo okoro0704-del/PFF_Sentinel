@@ -6,11 +6,15 @@
 // Download URLs (configure these for your actual distribution)
 const DOWNLOAD_URLS = {
   mobile: {
-    android: 'https://example.com/sentinel-mobile.apk',
-    ios: 'https://apps.apple.com/app/sentinel-mobile',
-    default: 'https://example.com/sentinel-mobile'
+    // ⏳ FUTURE FEATURE - Mobile apps not yet published (Phase 6 - Q1 2027)
+    // See FUTURE_FEATURES.md for roadmap
+    android: null, // Will be: 'https://play.google.com/store/apps/details?id=com.pff.sentinel'
+    ios: null,     // Will be: 'https://apps.apple.com/app/pff-sentinel/id...'
+    default: null,
+    comingSoon: true
   },
   desktop: {
+    // ✅ AVAILABLE - Desktop bundle with ZKTeco drivers (placeholder binaries)
     windows: '/binaries/Sentinel_Desktop_Bundle.zip',
     mac: '/binaries/Sentinel_Desktop_Bundle.zip',
     linux: '/binaries/Sentinel_Desktop_Bundle.zip',
@@ -79,8 +83,15 @@ function isDesktop() {
 function setupDownloadButtons() {
   if (btnDownloadMobile) {
     btnDownloadMobile.addEventListener('click', () => {
+      // Check if mobile apps are available
+      if (DOWNLOAD_URLS.mobile.comingSoon) {
+        alert('📱 Mobile Apps Coming Soon!\n\nNative iOS and Android apps are planned for Q1 2027.\n\nFor now, you can use the web version on your mobile browser or download the desktop app.');
+        return;
+      }
       const url = getMobileDownloadUrl();
-      window.location.href = url;
+      if (url) {
+        window.location.href = url;
+      }
     });
   }
 
