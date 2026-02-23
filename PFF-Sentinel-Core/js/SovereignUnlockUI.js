@@ -7,6 +7,7 @@
 import { sovereignUnlock, canSovereignUnlock, isVaultFrozen } from './BiometricEnforcement.js';
 import { getCitizenWallet } from './SovereignWalletTriad.js';
 import { getProfile } from './supabase-client.js';
+import { debugWarn } from './debug-utils.js';
 
 // ============================================
 // SOVEREIGN UNLOCK UI
@@ -19,7 +20,7 @@ export async function initializeSovereignUnlockUI() {
   const container = document.getElementById('sovereignUnlockContainer');
   
   if (!container) {
-    console.warn('⚠️ Sovereign Unlock container not found');
+    debugWarn('⚠️ Sovereign Unlock container not found');
     return;
   }
 

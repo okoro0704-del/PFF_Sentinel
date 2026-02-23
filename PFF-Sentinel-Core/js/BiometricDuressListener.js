@@ -6,6 +6,7 @@
 
 import { recordFailedBiometricAttempt, resetFailedAttempts } from './BiometricEnforcement.js';
 import { supabase } from './supabase-client.js';
+import { debugLog, debugWarn } from './debug-utils.js';
 
 // ============================================
 // BIOMETRIC EVENT LISTENER
@@ -19,11 +20,11 @@ let isListening = false;
  */
 export function startBiometricDuressListener() {
   if (isListening) {
-    console.warn('⚠️ Biometric Duress Listener already running');
+    debugWarn('⚠️ Biometric Duress Listener already running');
     return;
   }
 
-  console.log('👁️ Starting Biometric Duress Listener...');
+  debugLog('👁️ Starting Biometric Duress Listener...');
 
   // Listen for WebAuthn failures (fingerprint)
   listenForWebAuthnFailures();
@@ -35,7 +36,7 @@ export function startBiometricDuressListener() {
   listenForDatabaseEvents();
 
   isListening = true;
-  console.log('✅ Biometric Duress Listener started');
+  debugLog('✅ Biometric Duress Listener started');
 }
 
 /**
@@ -149,14 +150,14 @@ function listenForDatabaseEvents() {
  * @param {Object} payload - Database event payload
  */
 async function handleDatabaseEvent(payload) {
-  console.log('📡 Biometric failure event received:', payload);
-  
+  debugLog('📡 Biometric failure event received:', payload);
+
   const failure = payload.new;
-  
+
   // Check if this is the 3rd failure
   if (failure.attempt_number >= 3) {
-    console.log('🚨 DURESS THRESHOLD REACHED: Triggering SSS Vault Freeze');
-    
+    debugLog('🚨 DURESS THRESHOLD REACHED: Triggering SSS Vault Freeze');
+
     // Dispatch vault frozen event
     window.dispatchEvent(new CustomEvent('vault-frozen', {
       detail: {

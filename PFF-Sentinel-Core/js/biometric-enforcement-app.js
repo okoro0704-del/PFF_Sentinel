@@ -4,14 +4,15 @@
  */
 
 import { initializeCitizenWallet, getCitizenWallet } from './SovereignWalletTriad.js';
-import { 
-  downloadMDMProfile, 
+import {
+  downloadMDMProfile,
   activateBiometricEnforcement,
-  checkBiometricSubscription 
+  checkBiometricSubscription
 } from './BiometricEnforcement.js';
 import { startBiometricDuressListener } from './BiometricDuressListener.js';
 import { initializeSovereignUnlockUI } from './SovereignUnlockUI.js';
 import { getProfile } from './supabase-client.js';
+import { debugLog, debugError } from './debug-utils.js';
 
 // DOM Elements
 const enforcementStatusEl = document.getElementById('enforcementStatus');
@@ -24,7 +25,7 @@ const btnDownloadMDM = document.getElementById('btnDownloadMDM');
 
 async function initializeApp() {
   try {
-    console.log('🔐 Initializing Biometric Enforcement Dashboard...');
+    debugLog('🔐 Initializing Biometric Enforcement Dashboard...');
 
     // Initialize Citizen Wallet
     const result = await initializeCitizenWallet();
@@ -53,9 +54,9 @@ async function initializeApp() {
     // Listen for vault frozen events
     window.addEventListener('vault-frozen', handleVaultFrozen);
 
-    console.log('✅ Biometric Enforcement Dashboard initialized');
+    debugLog('✅ Biometric Enforcement Dashboard initialized');
   } catch (error) {
-    console.error('❌ Initialization failed:', error);
+    debugError('❌ Initialization failed:', error);
     enforcementStatusEl.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
   }
 }
@@ -109,7 +110,7 @@ async function loadEnforcementStatus(wallet, profile) {
     btnToggleEnforcement.style.display = 'block';
     btnToggleEnforcement.disabled = !subscription.active && !isEnabled;
   } catch (error) {
-    console.error('❌ Failed to load enforcement status:', error);
+    debugError('❌ Failed to load enforcement status:', error);
     enforcementStatusEl.innerHTML = `<p style="color: red;">Error loading status</p>`;
   }
 }

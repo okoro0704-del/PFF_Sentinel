@@ -13,6 +13,7 @@ import { getCitizenWallet, isSentinel } from './SovereignWalletTriad.js';
 import { executeLockSavings } from './SentinelGuard.js';
 import { getProfile, upsertProfile } from './supabase-client.js';
 import { supabase } from './supabase-client.js';
+import { debugLog, debugWarn, debugError } from './debug-utils.js';
 
 // ============================================
 // BIOMETRIC ENFORCEMENT CONFIGURATION
@@ -175,7 +176,7 @@ export async function recordFailedBiometricAttempt() {
     failedAttempts++;
     lastFailedAttemptTime = Date.now();
 
-    console.warn(`⚠️ Failed biometric attempt ${failedAttempts}/${BIOMETRIC_CONFIG.maxFailedAttempts}`);
+    debugWarn(`⚠️ Failed biometric attempt ${failedAttempts}/${BIOMETRIC_CONFIG.maxFailedAttempts}`);
 
     // Store in database
     await supabase.from('biometric_failures').insert({
@@ -201,7 +202,7 @@ export async function recordFailedBiometricAttempt() {
       message: `Warning: ${failedAttempts}/${BIOMETRIC_CONFIG.maxFailedAttempts} failed attempts`
     };
   } catch (error) {
-    console.error('❌ Failed to record biometric attempt:', error);
+    debugError('❌ Failed to record biometric attempt:', error);
     return { frozen: false, attempts: failedAttempts, message: error.message };
   }
 }
@@ -212,7 +213,7 @@ export async function recordFailedBiometricAttempt() {
 export function resetFailedAttempts() {
   failedAttempts = 0;
   lastFailedAttemptTime = null;
-  console.log('✅ Failed attempts counter reset');
+  debugLog('✅ Failed attempts counter reset');
 }
 
 /**
@@ -255,7 +256,7 @@ async function triggerSSSVaultFreeze(citizenAddress) {
       const result = await executeLockSavings(citizenAddress, vidaBalance.toString());
 
       if (result.success) {
-        console.log(`✅ SSS Vault Frozen: ${vidaBalance} VIDA locked`);
+        debugLog(`✅ SSS Vault Frozen: ${vidaBalance} VIDA locked`);
 
         // Update profile
         await upsertProfile(wallet.deviceId, {
@@ -271,10 +272,10 @@ async function triggerSSSVaultFreeze(citizenAddress) {
         // Send alert notification
         await sendVaultFreezeAlert(wallet.deviceId, vidaBalance);
       } else {
-        console.error('❌ SSS Vault Freeze failed:', result.error);
+        debugError('❌ SSS Vault Freeze failed:', result.error);
       }
     } else {
-      console.log('⚠️ No spendable VIDA to freeze');
+      debugLog('⚠️ No spendable VIDA to freeze');
     }
   } catch (error) {
     console.error('❌ SSS Vault Freeze error:', error);
